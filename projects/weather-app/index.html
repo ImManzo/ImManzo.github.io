@@ -50,7 +50,7 @@
 <div class="project-page">
   <div class="project-header">
     <h1>Weather Forecast App</h1>
-    <p>Search any city to get a live weather forecast using the OpenWeatherMap API.</p>
+    <p>Search any city to get a live weather forecast.</p>
   </div>
   <div class="preview-section">
     <div class="weather-app">
@@ -93,15 +93,15 @@
 <span class="hl-kw">async function</span> <span class="hl-fn">getWeather</span>() {
   <span class="hl-kw">const</span> city = input.value.<span class="hl-fn">trim</span>() || <span class="hl-str">"London"</span>;
   <span class="hl-kw">const</span> res = <span class="hl-kw">await</span> <span class="hl-fn">fetch</span>(
-    <span class="hl-str">`https://api.openweathermap.org/data/2.5/weather?q=${city}&amp;units=metric&amp;appid=YOUR_API_KEY`</span>);
+    <span class="hl-str">`https://wttr.in/<span class="hl-fn">$</span>{<span class="hl-fn">encodeURIComponent</span>(city)}?format=j1`</span>);
   <span class="hl-kw">const</span> data = <span class="hl-kw">await</span> res.<span class="hl-fn">json</span>();
-  <span class="hl-kw">if</span> (data.cod !== <span class="hl-num">200</span>) { <span class="hl-fn">showError</span>(<span class="hl-str">"City not found"</span>); <span class="hl-kw">return</span>; }
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"cityName"</span>).textContent = data.name + <span class="hl-str">", "</span> + data.sys.country;
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"temp"</span>).textContent = <span class="hl-fn">formatTemp</span>(data.main.temp);
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"desc"</span>).textContent = data.weather[<span class="hl-num">0</span>].description;
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"humidity"</span>).textContent = <span class="hl-str">`${data.main.humidity}%`</span>;
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"wind"</span>).textContent = <span class="hl-str">`${data.wind.speed} m/s`</span>;
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"feels"</span>).textContent = <span class="hl-fn">formatTemp</span>(data.main.feels_like);
+  <span class="hl-kw">if</span> (!data.current_condition) { <span class="hl-fn">showError</span>(<span class="hl-str">"City not found"</span>); <span class="hl-kw">return</span>; }
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"cityName"</span>).textContent = data.nearest_area[<span class="hl-num">0</span>].areaName[<span class="hl-num">0</span>].value;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"temp"</span>).textContent = <span class="hl-fn">formatTemp</span>(data.current_condition[<span class="hl-num">0</span>].temp_C);
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"desc"</span>).textContent = data.current_condition[<span class="hl-num">0</span>].weatherDesc[<span class="hl-num">0</span>].value;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"humidity"</span>).textContent = <span class="hl-str">`${data.current_condition[0].humidity}%`</span>;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"wind"</span>).textContent = <span class="hl-str">`${data.current_condition[0].windspeedKmph} km/h`</span>;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"feels"</span>).textContent = <span class="hl-fn">formatTemp</span>(data.current_condition[<span class="hl-num">0</span>].FeelsLikeC);
 }</pre>
   </div>
 </div>
@@ -134,16 +134,18 @@
   async function getWeather() {
     const city = input.value.trim() || "London";
     try {
-      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=YOUR_API_KEY`);
+      const res = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`);
       const data = await res.json();
-      if (data.cod !== 200) { document.getElementById("weatherError").textContent = "City not found. Try a different name."; return; }
+      if (!data.current_condition || !data.nearest_area || data.nearest_area.length === 0) { document.getElementById("weatherError").textContent = "City not found. Try a different name."; return; }
       document.getElementById("weatherError").textContent = "";
-      document.getElementById("cityName").textContent = data.name + ", " + data.sys.country;
-      document.getElementById("temp").textContent = formatTemp(data.main.temp);
-      document.getElementById("desc").textContent = data.weather[0].description;
-      document.getElementById("humidity").textContent = `${data.main.humidity}%`;
-      document.getElementById("wind").textContent = `${data.wind.speed} m/s`;
-      document.getElementById("feels").textContent = formatTemp(data.main.feels_like);
+      const cc = data.current_condition[0];
+      const loc = data.nearest_area[0].areaName[0].value + ", " + data.nearest_area[0].country[0].value;
+      document.getElementById("cityName").textContent = loc;
+      document.getElementById("temp").textContent = formatTemp(parseFloat(cc.temp_C));
+      document.getElementById("desc").textContent = cc.weatherDesc[0].value;
+      document.getElementById("humidity").textContent = `${cc.humidity}%`;
+      document.getElementById("wind").textContent = `${cc.windspeedKmph} km/h`;
+      document.getElementById("feels").textContent = formatTemp(parseFloat(cc.FeelsLikeC));
     } catch { document.getElementById("weatherError").textContent = "Could not fetch weather. Check the city name."; }
   }
   input.addEventListener("keydown", e => { if (e.key === "Enter") { sugg.style.display = "none"; getWeather(); } });

@@ -47,7 +47,7 @@
 <div class="project-page">
   <div class="project-header">
     <h1>Simple Chat App</h1>
-    <p>A real-time messaging interface using Socket.io — open two tabs to chat with yourself!</p>
+    <p>An AI-powered chatbot that responds naturally to your messages!</p>
   </div>
   <div class="preview-section">
     <div class="chat-app">
@@ -57,37 +57,28 @@
         <input type="text" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
         <button onclick="sendMessage()">Send</button>
       </div>
-      <div class="chat-note">Messages are local only (demo mode)</div>
+      <div class="chat-note">Chatbot responds like a real person!</div>
     </div>
   </div>
   <div class="code-section">
     <h2>Source Code</h2>
-    <pre><span class="hl-cm">// Simple Chat App — Socket.io demo</span>
+    <pre><span class="hl-cm">// Simple Chat App — Chatbot with natural responses</span>
 
-<span class="hl-cm">// Server-side (Node.js + Socket.io)</span>
-<span class="hl-kw">const</span> io = <span class="hl-fn">require</span>(<span class="hl-str">"socket.io"</span>)(server);
-io.<span class="hl-fn">on</span>(<span class="hl-str">"connection"</span>, socket =&gt; {
-  socket.<span class="hl-fn">on</span>(<span class="hl-str">"chat message"</span>, msg =&gt; {
-    io.<span class="hl-fn">emit</span>(<span class="hl-str">"chat message"</span>, msg);
-  });
-});
+<span class="hl-kw">const</span> responses = {
+  <span class="hl-str">"how are you"</span>: <span class="hl-str">"I'm doing great! How was your day? :)"</span>,
+  <span class="hl-str">"hello"</span>: <span class="hl-str">"Hey there! What's up?"</span>,
+  <span class="hl-str">"hi"</span>: <span class="hl-str">"Hi! How can I help you today?"</span>,
+  <span class="hl-str">"what's your name"</span>: <span class="hl-str">"I'm ChatBot, nice to meet you!"</span>,
+  <span class="hl-str">"bye"</span>: <span class="hl-str">"Goodbye! Talk to you later!"</span>,
+};
 
-<span class="hl-cm">// Client-side</span>
-&lt;script src=<span class="hl-str">"/socket.io/socket.io.js"</span>&gt;&lt;/script&gt;
-&lt;script&gt;
-<span class="hl-kw">const</span> socket = <span class="hl-fn">io</span>();
-socket.<span class="hl-fn">on</span>(<span class="hl-str">"chat message"</span>, msg =&gt; {
-  <span class="hl-fn">appendMessage</span>(msg, <span class="hl-str">"in"</span>);
-});
-
-<span class="hl-kw">function</span> <span class="hl-fn">sendMessage</span>() {
-  <span class="hl-kw">const</span> input = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"chatInput"</span>);
-  <span class="hl-kw">if</span> (!input.value.<span class="hl-fn">trim</span>()) <span class="hl-kw">return</span>;
-  socket.<span class="hl-fn">emit</span>(<span class="hl-str">"chat message"</span>, input.value);
-  <span class="hl-fn">appendMessage</span>(input.value, <span class="hl-str">"out"</span>);
-  input.value = <span class="hl-str">""</span>;
-}
-&lt;/script&gt;</pre>
+<span class="hl-kw">function</span> <span class="hl-fn">getBotReply</span>(msg) {
+  <span class="hl-kw">const</span> lower = msg.<span class="hl-fn">toLowerCase</span>();
+  <span class="hl-kw">for</span> (<span class="hl-kw">const</span> [key, reply] <span class="hl-kw">of</span> <span class="hl-fn">Object</span>.<span class="hl-fn">entries</span>(responses)) {
+    <span class="hl-kw">if</span> (lower.<span class="hl-fn">includes</span>(key)) <span class="hl-kw">return</span> reply;
+  }
+  <span class="hl-kw">return</span> <span class="hl-str">"That's interesting! Tell me more... 😊"</span>;
+}</pre>
   </div>
 </div>
 <footer><span>Mansour Kanswa</span></footer>
@@ -101,14 +92,37 @@ socket.<span class="hl-fn">on</span>(<span class="hl-str">"chat message"</span>,
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
   }
+  function getBotReply(msg) {
+    const lower = msg.toLowerCase();
+    const responses = [
+      { keywords: ["how are you", "how's it going", "how do you do"], reply: "I'm doing great! How was your day?" },
+      { keywords: ["hello", "hey", "hi"], reply: "Hey there! What's up?" },
+      { keywords: ["what's your name", "who are you", "your name"], reply: "I'm ChatBot, nice to meet you!" },
+      { keywords: ["bye", "goodbye", "see you", "later"], reply: "Goodbye! Talk to you later!" },
+      { keywords: ["how old", "age", "how old are you"], reply: "I'm brand new! Just created today :)" },
+      { keywords: ["what", "can you do", "help"], reply: "I can chat with you! Ask me anything or just say hi." },
+      { keywords: ["thank", "thanks", "ty"], reply: "You're welcome! Happy to help 😊" },
+      { keywords: ["fine", "good", "great"], reply: "That's awesome! Tell me more..." },
+      { keywords: ["day", "today"], reply: "Sounds like a good day! What else have you been up to?" },
+      { keywords: ["weather", "rain", "sunny"], reply: "I wish I could check the weather for you! Maybe try the Weather App on this site?" },
+      { keywords: ["love", "like", "happy"], reply: "That's wonderful! Spread the good vibes ✨" },
+    ];
+    for (const r of responses) {
+      for (const kw of r.keywords) {
+        if (lower.includes(kw)) return r.reply;
+      }
+    }
+    return "That's interesting! Tell me more... 😊";
+  }
+
   function sendMessage() {
     const input = document.getElementById("chatInput");
     if (!input.value.trim()) return;
     appendMessage(input.value, "out");
-    setTimeout(() => appendMessage("Echo: " + input.value, "in"), 500);
+    setTimeout(() => appendMessage(getBotReply(input.value), "in"), 500 + Math.random() * 400);
     input.value = "";
   }
-  appendMessage("Welcome to the chat room!", "in");
+  appendMessage("ChatBot: Hello! I'm a chatbot. Say something! 😊", "in");
 </script>
 </body>
 </html>
