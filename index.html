@@ -238,8 +238,14 @@
 
   /* ---------- LEARNING JOURNEY ---------- */
   .journey-note{
-    font-size:15px; color:var(--ink-soft); max-width:600px; margin-bottom:30px;
+    font-size:15px; color:var(--ink-soft); max-width:600px; margin-bottom:20px;
   }
+  .journey-quote{
+    font-size:14px; color:var(--ink-soft); max-width:600px; margin-bottom:30px;
+    padding:18px 20px; background:#F7FCF9; border-left:3px solid #3FA66A;
+    border-radius:0 8px 8px 0; line-height:1.7; font-style:italic;
+  }
+  .journey-quote strong{ color:#2A7A4D; }
   .journey-grid{
     display:grid; grid-template-columns:repeat(2, 1fr); gap:10px;
   }
@@ -464,6 +470,10 @@
       <span class="section-num">03</span>
     </div>
     <p class="journey-note reveal">Started learning to code in 2023 through hands-on projects and online courses, then moved into professional freelance and full-time development in 2025. These early builds were learning exercises — small, scoped projects used to practice core concepts before working on production systems.</p>
+    <blockquote class="journey-quote reveal">
+      I know this code isn't perfect. It's not the best looking, and there are plenty of issues. But back then, I was so happy building every single one of them. I'm keeping them exactly like this — not because I can't do better now, but because this is where I started. This is the beginning of my journey. One day when I look back, I want to remember how far I've come. 🚀<br><br>
+      If you're just starting out too — keep going. It gets better. <strong>You</strong> get better.
+    </blockquote>
     <div class="journey-grid reveal">
       <a class="journey-item" href="./projects/calculator/" target="_blank" rel="noopener"><span class="journey-name">Calculator App</span><span class="journey-tech">Live ↗</span></a>
       <a class="journey-item" href="./projects/todo-list/" target="_blank" rel="noopener"><span class="journey-name">To-Do List Manager</span><span class="journey-tech">Live ↗</span></a>
