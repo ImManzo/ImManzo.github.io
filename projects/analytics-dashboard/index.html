@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics Dashboard — Mansour Kanswa</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2334506A'/%3E%3Cstop offset='60%25' stop-color='%231F3346'/%3E%3Cstop offset='100%25' stop-color='%2316242F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial,Helvetica,sans-serif' font-size='32' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:#FAFAF8; color:#1A1A1A; font-family:'Inter',-apple-system,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .top-bar{ background:rgba(250,250,248,0.86); backdrop-filter:blur(10px); border-bottom:1px solid #E5E3DD; padding:16px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .back-link{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#6B6B6B; text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .15s; }
+  .back-link:hover{ color:#1A1A1A; } .back-link svg{ width:14px; height:14px; }
+  .page-title{ font-size:13px; font-weight:600; color:#2D4356; letter-spacing:0.04em; }
+  .project-page{ max-width:900px; margin:0 auto; padding:40px 28px 60px; }
+  .project-header{ margin-bottom:40px; }
+  .project-header h1{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin-bottom:8px; }
+  .project-header p{ font-size:15px; color:#4A4A48; max-width:500px; }
+  .preview-section{ background:#fff; border:1px solid #E5E3DD; border-radius:14px; padding:40px; margin-bottom:40px; min-height:400px; }
+  .code-section h2{ font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#1A1A1A; margin-bottom:16px; }
+  pre{ background:#1a1a2e; color:#e0e0e0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.7; padding:24px; border-radius:10px; overflow-x:auto; tab-size:2; }
+  .hl-kw{ color:#c792ea; } .hl-fn{ color:#82aaff; } .hl-str{ color:#c3e88d; } .hl-num{ color:#f78c6c; } .hl-cm{ color:#546e7a; font-style:italic; }
+  footer{ text-align:center; padding:30px 28px; border-top:1px solid #E5E3DD; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#6B6B6B; }
+
+  .dash{ max-width:660px; margin:0 auto; width:100%; }
+  .dash-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:8px; }
+  .dash-head h3{ font-size:16px; }
+  .dash-head select{ padding:7px 10px; border:1px solid #E5E3DD; border-radius:6px; font-size:12px; outline:none; }
+  .dash-kpi{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+  .kpi-card{ padding:16px; background:#FAFAF8; border:1px solid #E5E3DD; border-radius:10px; text-align:center; }
+  .kpi-card .val{ font-size:22px; font-weight:800; color:#2D4356; }
+  .kpi-card .lbl{ font-size:10px; color:#6B6B6B; text-transform:uppercase; letter-spacing:0.05em; margin-top:2px; }
+  .kpi-card .change{ font-size:11px; font-weight:600; margin-top:2px; }
+  .kpi-card .up{ color:#3FA66A; } .kpi-card .down{ color:#e94560; }
+  .dash-chart{ border:1px solid #E5E3DD; border-radius:10px; padding:20px; margin-bottom:16px; }
+  .dash-chart h4{ font-size:13px; font-weight:700; margin-bottom:12px; }
+  .bar-chart{ display:flex; align-items:flex-end; gap:8px; height:140px; }
+  .bar-chart .bar-group{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; }
+  .bar-chart .bar{ width:100%; border-radius:4px 4px 0 0; transition:height .6s ease; min-height:4px; }
+  .bar-chart .bar-label{ font-size:10px; color:#6B6B6B; }
+  .dash-cols{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .dash-table{ border:1px solid #E5E3DD; border-radius:10px; padding:16px; }
+  .dash-table h4{ font-size:13px; font-weight:700; margin-bottom:10px; }
+  .dash-table table{ width:100%; border-collapse:collapse; font-size:12px; }
+  .dash-table th{ text-align:left; padding:6px 4px; border-bottom:1px solid #E5E3DD; color:#6B6B6B; }
+  .dash-table td{ padding:6px 4px; border-bottom:1px solid #F5F5F0; }
+  .dash-pie{ border:1px solid #E5E3DD; border-radius:10px; padding:16px; }
+  .dash-pie h4{ font-size:13px; font-weight:700; margin-bottom:10px; }
+  .pie-vis{ display:flex; align-items:center; gap:14px; }
+  .pie-chart{ width:80px; height:80px; border-radius:50%; position:relative; flex-shrink:0; }
+  .pie-legend{ flex:1; }
+  .pie-legend .row{ display:flex; align-items:center; gap:6px; font-size:11px; margin-bottom:4px; }
+  .pie-legend .dot{ width:8px; height:8px; border-radius:50%; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a class="back-link" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>Back to portfolio</a>
+  <span class="page-title">Project / Analytics Dashboard</span>
+</div>
+<div class="project-page">
+  <div class="project-header">
+    <h1>Analytics Dashboard</h1>
+    <p>A data visualization dashboard with KPIs, bar charts, traffic sources, and page performance tables.</p>
+  </div>
+  <div class="preview-section">
+    <div class="dash">
+      <div class="dash-head">
+        <h3>📊 Dashboard Overview</h3>
+        <select onchange="updateChart(this.value)">
+          <option value="7">Last 7 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </div>
+      <div class="dash-kpi" id="kpiGrid"></div>
+      <div class="dash-chart">
+        <h4>Daily Active Users</h4>
+        <div class="bar-chart" id="barChart"></div>
+      </div>
+      <div class="dash-cols">
+        <div class="dash-table">
+          <h4>Top Pages</h4>
+          <table><thead><tr><th>Page</th><th>Views</th><th>Avg Time</th></tr></thead><tbody id="pageTable"></tbody></table>
+        </div>
+        <div class="dash-pie">
+          <h4>Traffic Sources</h4>
+          <div class="pie-vis">
+            <div class="pie-chart" id="pieChart"></div>
+            <div class="pie-legend" id="pieLegend"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="code-section">
+    <h2>Source Code</h2>
+    <pre><span class="hl-cm">// Analytics Dashboard — KPI cards, bar chart, traffic sources</span>
+
+<span class="hl-kw">const</span> kpis = [
+  { lbl: <span class="hl-str">"Users"</span>, val: <span class="hl-num">2847</span>, chg: <span class="hl-str">"+12%"</span>, dir: <span class="hl-str">"up"</span> },
+  { lbl: <span class="hl-str">"Revenue"</span>, val: <span class="hl-str">"$12.4k"</span>, chg: <span class="hl-str">"+8%"</span>, dir: <span class="hl-str">"up"</span> },
+  { lbl: <span class="hl-str">"Bounce Rate"</span>, val: <span class="hl-str">"32%"</span>, chg: <span class="hl-str">"-3%"</span>, dir: <span class="hl-str">"down"</span> },
+  { lbl: <span class="hl-str">"Sessions"</span>, val: <span class="hl-num">4192</span>, chg: <span class="hl-str">"+18%"</span>, dir: <span class="hl-str">"up"</span> },
+];
+
+<span class="hl-kw">const</span> chartData = [
+  { day: <span class="hl-str">"Mon"</span>, val: <span class="hl-num">420</span> }, { day: <span class="hl-str">"Tue"</span>, val: <span class="hl-num">580</span> },
+  { day: <span class="hl-str">"Wed"</span>, val: <span class="hl-num">490</span> }, { day: <span class="hl-str">"Thu"</span>, val: <span class="hl-num">710</span> },
+  { day: <span class="hl-str">"Fri"</span>, val: <span class="hl-num">630</span> }, { day: <span class="hl-str">"Sat"</span>, val: <span class="hl-num">520</span> },
+  { day: <span class="hl-str">"Sun"</span>, val: <span class="hl-num">480</span> },
+];
+
+<span class="hl-kw">const</span> pages = [
+  { name: <span class="hl-str">"/home"</span>, views: <span class="hl-num">1240</span>, time: <span class="hl-str">"2:34"</span> },
+  { name: <span class="hl-str">"/pricing"</span>, views: <span class="hl-num">892</span>, time: <span class="hl-str">"3:12"</span> },
+  { name: <span class="hl-str">"/features"</span>, views: <span class="hl-num">654</span>, time: <span class="hl-str">"1:58"</span> },
+  { name: <span class="hl-str">"/contact"</span>, views: <span class="hl-num">321</span>, time: <span class="hl-str">"1:22"</span> },
+];</pre>
+  </div>
+</div>
+<footer><span>Mansour Kanswa</span></footer>
+<script>
+  const kpis = [
+    { lbl: "Users", val: "2,847", chg: "+12%", dir: "up" },
+    { lbl: "Revenue", val: "$12.4k", chg: "+8%", dir: "up" },
+    { lbl: "Bounce Rate", val: "32%", chg: "-3%", dir: "down" },
+    { lbl: "Sessions", val: "4,192", chg: "+18%", dir: "up" },
+  ];
+
+  const barData = [
+    { day: "Mon", val: 420 }, { day: "Tue", val: 580 }, { day: "Wed", val: 490 },
+    { day: "Thu", val: 710 }, { day: "Fri", val: 630 }, { day: "Sat", val: 520 }, { day: "Sun", val: 480 },
+  ];
+
+  const pages = [
+    { name: "/home", views: 1240, time: "2:34" },
+    { name: "/pricing", views: 892, time: "3:12" },
+    { name: "/features", views: 654, time: "1:58" },
+    { name: "/contact", views: 321, time: "1:22" },
+  ];
+
+  const sources = [
+    { lbl: "Organic Search", val: 45, color: "#2D4356" },
+    { lbl: "Direct", val: 25, color: "#3FA66A" },
+    { lbl: "Social Media", val: 18, color: "#C792EA" },
+    { lbl: "Referral", val: 12, color: "#F78C6C" },
+  ];
+
+  function render() {
+    document.getElementById("kpiGrid").innerHTML = kpis.map(k => `
+      <div class="kpi-card"><div class="val">${k.val}</div><div class="lbl">${k.lbl}</div><div class="change ${k.dir}">${k.chg}</div></div>
+    `).join("");
+
+    const maxVal = Math.max(...barData.map(d => d.val));
+    document.getElementById("barChart").innerHTML = barData.map(d => `
+      <div class="bar-group"><div class="bar" style="height:${(d.val/maxVal)*100}%;background:${d.val === maxVal ? '#2D4356' : '#E8EDF1'}"></div><span class="bar-label">${d.day}</span></div>
+    `).join("");
+
+    document.getElementById("pageTable").innerHTML = pages.map(p => `
+      <tr><td style="font-family:monospace">${p.name}</td><td><strong>${p.views}</strong></td><td>${p.time}</td></tr>
+    `).join("");
+
+    const total = sources.reduce((a, s) => a + s.val, 0);
+    let conic = sources.map((s, i) => {
+      const pct = (s.val / total) * 100;
+      const prev = sources.slice(0, i).reduce((a, x) => a + (x.val / total) * 360, 0);
+      return `${s.color} ${prev}deg ${prev + pct * 3.6}deg`;
+    }).join(", ");
+    document.getElementById("pieChart").style.background = `conic-gradient(${conic})`;
+
+    document.getElementById("pieLegend").innerHTML = sources.map(s => `
+      <div class="row"><span class="dot" style="background:${s.color}"></span> ${s.lbl} <strong>${s.val}%</strong></div>
+    `).join("");
+  }
+
+  function updateChart(period) {
+    const multipliers = { "7": 1, "30": 1.2, "90": 1.5 };
+    const m = multipliers[period] || 1;
+    const scaled = barData.map(d => ({ ...d, val: Math.round(d.val * m) }));
+    const maxVal = Math.max(...scaled.map(d => d.val));
+    document.getElementById("barChart").innerHTML = scaled.map(d => `
+      <div class="bar-group"><div class="bar" style="height:${(d.val/maxVal)*100}%;background:${d.val === maxVal ? '#2D4356' : '#E8EDF1'}"></div><span class="bar-label">${d.day}</span></div>
+    `).join("");
+  }
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Support Chatbot — Mansour Kanswa</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2334506A'/%3E%3Cstop offset='60%25' stop-color='%231F3346'/%3E%3Cstop offset='100%25' stop-color='%2316242F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial,Helvetica,sans-serif' font-size='32' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:#FAFAF8; color:#1A1A1A; font-family:'Inter',-apple-system,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .top-bar{ background:rgba(250,250,248,0.86); backdrop-filter:blur(10px); border-bottom:1px solid #E5E3DD; padding:16px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .back-link{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#6B6B6B; text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .15s; }
+  .back-link:hover{ color:#1A1A1A; } .back-link svg{ width:14px; height:14px; }
+  .page-title{ font-size:13px; font-weight:600; color:#2D4356; letter-spacing:0.04em; }
+  .project-page{ max-width:900px; margin:0 auto; padding:40px 28px 60px; }
+  .project-header{ margin-bottom:40px; }
+  .project-header h1{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin-bottom:8px; }
+  .project-header p{ font-size:15px; color:#4A4A48; max-width:500px; }
+  .preview-section{ background:#fff; border:1px solid #E5E3DD; border-radius:14px; padding:40px; margin-bottom:40px; min-height:400px; display:flex; align-items:center; justify-content:center; }
+  .code-section h2{ font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#1A1A1A; margin-bottom:16px; }
+  pre{ background:#1a1a2e; color:#e0e0e0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.7; padding:24px; border-radius:10px; overflow-x:auto; tab-size:2; }
+  .hl-kw{ color:#c792ea; } .hl-fn{ color:#82aaff; } .hl-str{ color:#c3e88d; } .hl-num{ color:#f78c6c; } .hl-cm{ color:#546e7a; font-style:italic; }
+  footer{ text-align:center; padding:30px 28px; border-top:1px solid #E5E3DD; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#6B6B6B; }
+
+  .support{ max-width:460px; margin:0 auto; width:100%; border:1px solid #E5E3DD; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; height:480px; background:#fff; }
+  .support-head{ padding:16px; background:linear-gradient(135deg,#2D4356,#1F3346); color:#fff; }
+  .support-head h3{ font-size:15px; display:flex; align-items:center; gap:8px; }
+  .support-head p{ font-size:12px; opacity:.7; margin-top:2px; }
+  .support-head .status{ display:inline-flex; align-items:center; gap:5px; font-size:11px; background:rgba(255,255,255,0.15); padding:3px 10px; border-radius:10px; margin-top:6px; }
+  .support-head .status .dot{ width:6px; height:6px; border-radius:50%; background:#3FA66A; }
+  .support-msgs{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:8px; background:#FAFAF8; }
+  .support-msg{ padding:10px 14px; border-radius:12px; max-width:80%; font-size:14px; line-height:1.5; word-wrap:break-word; }
+  .support-msg.bot{ background:#fff; align-self:flex-start; border:1px solid #E5E3DD; border-bottom-left-radius:4px; }
+  .support-msg.user{ background:#2D4356; color:#fff; align-self:flex-end; border-bottom-right-radius:4px; }
+  .support-msg .time{ font-size:10px; opacity:.5; margin-top:4px; display:block; }
+  .support-options{ padding:10px 16px; border-top:1px solid #E5E3DD; display:flex; gap:6px; flex-wrap:wrap; background:#fff; }
+  .support-options button{ padding:7px 14px; border:1px solid #E5E3DD; border-radius:16px; background:#fff; font-size:12px; cursor:pointer; transition:.15s; }
+  .support-options button:hover{ background:#E8EDF1; border-color:#2D4356; }
+  .support-foot{ display:flex; gap:8px; padding:12px 16px; border-top:1px solid #E5E3DD; background:#fff; }
+  .support-foot input{ flex:1; padding:10px 14px; border:1px solid #E5E3DD; border-radius:8px; font-size:14px; outline:none; }
+  .support-foot input:focus{ border-color:#2D4356; }
+  .support-foot button{ padding:10px 18px; background:#2D4356; color:#fff; border:none; border-radius:8px; font-size:14px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a class="back-link" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>Back to portfolio</a>
+  <span class="page-title">Project / AI Support Chatbot</span>
+</div>
+<div class="project-page">
+  <div class="project-header">
+    <h1>AI Support Chatbot</h1>
+    <p>An intelligent customer support chatbot that answers FAQs, handles issues, and escalates to human agents.</p>
+  </div>
+  <div class="preview-section">
+    <div class="support">
+      <div class="support-head">
+        <h3>🤖 Support Assistant</h3>
+        <p>I can help with orders, returns, billing &amp; more</p>
+        <div class="status"><span class="dot"></span> Online — AI powered</div>
+      </div>
+      <div class="support-msgs" id="supportMsgs"></div>
+      <div class="support-options" id="quickOptions"></div>
+      <div class="support-foot">
+        <input type="text" id="supportInp" placeholder="Type your question..." onkeydown="if(event.key==='Enter') sendSupport()">
+        <button onclick="sendSupport()">Send</button>
+      </div>
+    </div>
+  </div>
+  <div class="code-section">
+    <h2>Source Code</h2>
+    <pre><span class="hl-cm">// AI Support Chatbot — FAQ engine + NLP-style matching</span>
+
+<span class="hl-kw">const</span> faq = [
+  { keywords: [<span class="hl-str">"order"</span>, <span class="hl-str">"status"</span>, <span class="hl-str">"track"</span>], reply: <span class="hl-str">"Let me check your order status. Could you provide your order number?"</span> },
+  { keywords: [<span class="hl-str">"return"</span>, <span class="hl-str">"refund"</span>, <span class="hl-str">"money back"</span>], reply: <span class="hl-str">"Our return policy is 30 days from delivery. I'll start a return for you right away!"</span> },
+  { keywords: [<span class="hl-str">"billing"</span>, <span class="hl-str">"invoice"</span>, <span class="hl-str">"payment"</span>], reply: <span class="hl-str">"I can help with billing! You can view/download invoices from your account dashboard."</span> },
+  { keywords: [<span class="hl-str">"shipping"</span>, <span class="hl-str">"delivery"</span>, <span class="hl-str">"ship"</span>], reply: <span class="hl-str">"Standard shipping takes 3-5 business days. Express shipping is 1-2 days."</span> },
+  { keywords: [<span class="hl-str">"human"</span>, <span class="hl-str">"agent"</span>, <span class="hl-str">"speak"</span>, <span class="hl-str">"representative"</span>], reply: <span class="hl-str">"Let me transfer you to a human agent. Please hold while I connect you..."</span> },
+];
+
+<span class="hl-kw">function</span> <span class="hl-fn">getBotReply</span>(msg) {
+  <span class="hl-kw">const</span> lower = msg.<span class="hl-fn">toLowerCase</span>();
+  <span class="hl-kw">for</span> (<span class="hl-kw">const</span> item <span class="hl-kw">of</span> faq) {
+    <span class="hl-kw">for</span> (<span class="hl-kw">const</span> kw <span class="hl-kw">of</span> item.keywords) {
+      <span class="hl-kw">if</span> (lower.<span class="hl-fn">includes</span>(kw)) <span class="hl-kw">return</span> item.reply;
+    }
+  }
+  <span class="hl-kw">return</span> <span class="hl-str">"I'm not sure I understand. Let me transfer you to our support team!"</span>;
+}</pre>
+  </div>
+</div>
+<footer><span>Mansour Kanswa</span></footer>
+<script>
+  const faq = [
+    { keywords: ["order", "status", "where is my", "track"], reply: "Let me check your order status. Could you provide your order number?", tag: "orders" },
+    { keywords: ["return", "refund", "money back", "exchange"], reply: "Our return policy is 30 days from delivery. I'll start a return for you right away!", tag: "returns" },
+    { keywords: ["billing", "invoice", "payment", "charged", "receipt"], reply: "I can help with billing! You can view/download invoices from your account dashboard.", tag: "billing" },
+    { keywords: ["shipping", "delivery", "ship", "arrive", "dispatch"], reply: "Standard shipping takes 3-5 business days. Express shipping is 1-2 business days.", tag: "shipping" },
+    { keywords: ["human", "agent", "speak", "representative", "person"], reply: "Let me transfer you to a human agent. Please hold while I connect you...", tag: "human" },
+    { keywords: ["account", "login", "password", "sign in", "profile"], reply: "You can reset your password from the login page. Need help with anything else?", tag: "account" },
+    { keywords: ["hello", "hi", "hey", "good morning", "good evening"], reply: "Hello! 👋 How can I help you today?", tag: "greeting" },
+    { keywords: ["thank", "thanks", "appreciate"], reply: "You're welcome! 😊 Is there anything else I can help with?", tag: "thanks" },
+  ];
+
+  const quickBtns = [
+    { text: "📦 Where is my order?", tag: "orders" },
+    { text: "🔄 Start a return", tag: "returns" },
+    { text: "💳 Billing question", tag: "billing" },
+    { text: "🚚 Shipping info", tag: "shipping" },
+  ];
+
+  function appendMsg(text, type) {
+    const div = document.createElement("div");
+    div.className = "support-msg " + type;
+    const now = new Date();
+    const ts = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+    div.innerHTML = text + `<span class="time">${ts}</span>`;
+    document.getElementById("supportMsgs").appendChild(div);
+    document.getElementById("supportMsgs").scrollTop = document.getElementById("supportMsgs").scrollHeight;
+  }
+
+  function getBotReply(msg) {
+    const lower = msg.toLowerCase();
+    for (const item of faq) { for (const kw of item.keywords) { if (lower.includes(kw)) return item.reply; } }
+    return "I'm not sure I understand. Let me transfer you to our support team!";
+  }
+
+  function sendSupport(msg) {
+    const inp = document.getElementById("supportInp");
+    const text = msg || inp.value.trim();
+    if (!text) return;
+    appendMsg(text, "user");
+    inp.value = "";
+    document.getElementById("quickOptions").innerHTML = "";
+    setTimeout(() => appendMsg(getBotReply(text), "bot"), 400 + Math.random() * 500);
+  }
+
+  document.getElementById("quickOptions").innerHTML = quickBtns.map(b => `<button onclick="sendSupport('${b.text}')">${b.text}</button>`).join("");
+  appendMsg("Hello! 👋 I'm your AI Support Assistant. How can I help you today?", "bot");
+</script>
+</body>
+</html>
