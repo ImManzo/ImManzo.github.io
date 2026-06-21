@@ -54,32 +54,14 @@
       </div>
       <div class="converter-row">
         <label>From</label>
-        <select id="fromCurrency">
-          <option value="USD">USD - US Dollar</option>
-          <option value="EUR">EUR - Euro</option>
-          <option value="GBP">GBP - British Pound</option>
-          <option value="JPY">JPY - Japanese Yen</option>
-          <option value="TRY" selected>TRY - Turkish Lira</option>
-          <option value="EGP">EGP - Egyptian Pound</option>
-          <option value="AED">AED - UAE Dirham</option>
-          <option value="SAR">SAR - Saudi Riyal</option>
-        </select>
+        <select id="fromCurrency"></select>
       </div>
       <div class="converter-swap">
         <button onclick="swapCurrencies()">⇄</button>
       </div>
       <div class="converter-row">
         <label>To</label>
-        <select id="toCurrency">
-          <option value="USD" selected>USD - US Dollar</option>
-          <option value="EUR">EUR - Euro</option>
-          <option value="GBP">GBP - British Pound</option>
-          <option value="JPY">JPY - Japanese Yen</option>
-          <option value="TRY">TRY - Turkish Lira</option>
-          <option value="EGP">EGP - Egyptian Pound</option>
-          <option value="AED">AED - UAE Dirham</option>
-          <option value="SAR">SAR - Saudi Riyal</option>
-        </select>
+        <select id="toCurrency"></select>
       </div>
       <button style="width:100%;padding:12px;background:#1A1A1A;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;" onclick="convert()">Convert</button>
       <div class="converter-result" id="result">
@@ -91,34 +73,104 @@
   </div>
   <div class="code-section">
     <h2>Source Code</h2>
-    <pre><span class="hl-cm">// Currency Converter using free API</span>
+    <pre><span class="hl-cm">// Currency Converter — all currencies from API</span>
+
+<span class="hl-kw">const</span> currencyNames = { <span class="hl-str">"USD"</span>:<span class="hl-str">"US Dollar"</span>, <span class="hl-str">"EUR"</span>:<span class="hl-str">"Euro"</span>, <span class="hl-cm">/* 150+ currencies */</span> };
+
+<span class="hl-kw">async function</span> <span class="hl-fn">populateCurrencies</span>() {
+  <span class="hl-kw">const</span> res = <span class="hl-kw">await</span> <span class="hl-fn">fetch</span>(<span class="hl-str">"https://api.exchangerate-api.com/v4/latest/USD"</span>);
+  <span class="hl-kw">const</span> data = <span class="hl-kw">await</span> res.<span class="hl-fn">json</span>();
+  <span class="hl-kw">const</span> codes = <span class="hl-fn">Object</span>.<span class="hl-fn">keys</span>(data.rates).<span class="hl-fn">sort</span>();
+  codes.<span class="hl-fn">forEach</span>(code => {
+    <span class="hl-kw">const</span> name = currencyNames[code] || code;
+    fromSel.innerHTML += <span class="hl-str">`&lt;option value="${code}"&gt;${code} - ${name}&lt;/option&gt;`</span>;
+    toSel.innerHTML += <span class="hl-str">`&lt;option value="${code}"&gt;${code} - ${name}&lt;/option&gt;`</span>;
+  });
+}
 
 <span class="hl-kw">async function</span> <span class="hl-fn">convert</span>() {
   <span class="hl-kw">const</span> amount = <span class="hl-fn">parseFloat</span>(document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"amount"</span>).value);
-  <span class="hl-kw">const</span> from = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"fromCurrency"</span>).value;
-  <span class="hl-kw">const</span> to = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"toCurrency"</span>).value;
-
-  <span class="hl-kw">const</span> res = <span class="hl-kw">await</span> <span class="hl-fn">fetch</span>(
-    <span class="hl-str">`https://api.exchangerate-api.com/v4/latest/${from}`</span>
-  );
+  <span class="hl-kw">const</span> from = fromSel.value;
+  <span class="hl-kw">const</span> to = toSel.value;
+  <span class="hl-kw">const</span> res = <span class="hl-kw">await</span> <span class="hl-fn">fetch</span>(<span class="hl-str">`https://api.exchangerate-api.com/v4/latest/${from}`</span>);
   <span class="hl-kw">const</span> data = <span class="hl-kw">await</span> res.<span class="hl-fn">json</span>();
   <span class="hl-kw">const</span> rate = data.rates[to];
-  <span class="hl-kw">const</span> result = (amount * rate).<span class="hl-fn">toFixed</span>(<span class="hl-num">2</span>);
-
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"resultValue"</span>).textContent = result;
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"resultLabel"</span>).textContent =
-    <span class="hl-str">`${amount} ${from} =`</span>;
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"rateInfo"</span>).textContent =
-    <span class="hl-str">`1 ${from} = ${rate} ${to}`</span>;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"resultValue"</span>).textContent = (amount * rate).<span class="hl-fn">toFixed</span>(<span class="hl-num">2</span>);
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"rateInfo"</span>).textContent = <span class="hl-str">`1 ${from} = ${rate} ${to}`</span>;
 }</pre>
   </div>
 </div>
 <footer><span>Mansour Kanswa</span></footer>
 <script>
+  const currencyNames = {
+    "USD":"US Dollar","EUR":"Euro","GBP":"British Pound","JPY":"Japanese Yen","TRY":"Turkish Lira",
+    "EGP":"Egyptian Pound","AED":"UAE Dirham","SAR":"Saudi Riyal","AUD":"Australian Dollar",
+    "BRL":"Brazilian Real","CAD":"Canadian Dollar","CHF":"Swiss Franc","CNY":"Chinese Yuan",
+    "DKK":"Danish Krone","HKD":"Hong Kong Dollar","IDR":"Indonesian Rupiah","ILS":"Israeli Shekel",
+    "INR":"Indian Rupee","KRW":"South Korean Won","KWD":"Kuwaiti Dinar","MXN":"Mexican Peso",
+    "MYR":"Malaysian Ringgit","NOK":"Norwegian Krone","NZD":"New Zealand Dollar",
+    "PHP":"Philippine Peso","PKR":"Pakistani Rupee","PLN":"Polish Zloty","QAR":"Qatari Riyal",
+    "RON":"Romanian Leu","RUB":"Russian Ruble","SEK":"Swedish Krona","SGD":"Singapore Dollar",
+    "THB":"Thai Baht","ZAR":"South African Rand","AFN":"Afghani","ALL":"Lek","AMD":"Dram",
+    "ANG":"Netherlands Antillean Guilder","AOA":"Kwanza","ARS":"Argentine Peso",
+    "AWG":"Aruban Florin","AZN":"Azerbaijani Manat","BAM":"Convertible Mark","BBD":"Barbados Dollar",
+    "BDT":"Taka","BGN":"Bulgarian Lev","BHD":"Bahraini Dinar","BIF":"Burundi Franc",
+    "BMD":"Bermudian Dollar","BND":"Brunei Dollar","BOB":"Boliviano","BSD":"Bahamian Dollar",
+    "BTN":"Ngultrum","BWP":"Pula","BYN":"Belarusian Ruble","BZD":"Belize Dollar",
+    "CDF":"Congolese Franc","CLP":"Chilean Peso","COP":"Colombian Peso","CRC":"Costa Rican Colon",
+    "CUP":"Cuban Peso","CVE":"Cabo Verde Escudo","CZK":"Czech Koruna","DJF":"Djibouti Franc",
+    "DOP":"Dominican Peso","DZD":"Algerian Dinar","ERN":"Nakfa","ETB":"Ethiopian Birr",
+    "FJD":"Fiji Dollar","FKP":"Falkland Islands Pound","FOK":"Faroese Króna","GEL":"Lari",
+    "GGP":"Guernsey Pound","GHS":"Cedi","GIP":"Gibraltar Pound","GMD":"Dalasi",
+    "GNF":"Guinean Franc","GTQ":"Quetzal","GYD":"Guyana Dollar","HNL":"Lempira",
+    "HRK":"Kuna","HTG":"Gourde","HUF":"Forint","IMP":"Manx Pound","IQD":"Iraqi Dinar",
+    "IRR":"Iranian Rial","ISK":"Icelandic Króna","JEP":"Jersey Pound","JMD":"Jamaican Dollar",
+    "JOD":"Jordanian Dinar","KES":"Kenyan Shilling","KGS":"Som","KHR":"Riel",
+    "KMF":"Comorian Franc","KPW":"North Korean Won","KYD":"Cayman Islands Dollar",
+    "KZT":"Tenge","LAK":"Lao Kip","LBP":"Lebanese Pound","LKR":"Sri Lanka Rupee",
+    "LRD":"Liberian Dollar","LSL":"Loti","LYD":"Libyan Dinar","MAD":"Moroccan Dirham",
+    "MDL":"Moldovan Leu","MGA":"Malagasy Ariary","MKD":"Denar","MMK":"Kyat",
+    "MNT":"Tugrik","MOP":"Pataca","MRU":"Ouguiya","MUR":"Mauritius Rupee",
+    "MVR":"Rufiyaa","MWK":"Malawian Kwacha","MZN":"Mozambican Metical","NAD":"Namibia Dollar",
+    "NGN":"Naira","NIO":"Cordoba Oro","NPR":"Nepalese Rupee","OMR":"Rial Omani",
+    "PAB":"Balboa","PEN":"Sol","PGK":"Kina","PYG":"Guarani","RSD":"Serbian Dinar",
+    "RWF":"Rwanda Franc","SBD":"Solomon Islands Dollar","SCR":"Seychelles Rupee",
+    "SDG":"Sudanese Pound","SHP":"Saint Helena Pound","SLE":"Leone","SLL":"Leone",
+    "SOS":"Somali Shilling","SRD":"Suriname Dollar","SSP":"South Sudanese Pound",
+    "STN":"Dobra","SYP":"Syrian Pound","SZL":"Lilangeni","TJS":"Somoni",
+    "TMT":"Turkmenistan Manat","TND":"Tunisian Dinar","TOP":"Paʻanga","TTD":"Trinidad and Tobago Dollar",
+    "TWD":"New Taiwan Dollar","TZS":"Tanzanian Shilling","UAH":"Hryvnia","UGX":"Uganda Shilling",
+    "UYU":"Peso Uruguayo","UZS":"Uzbekistan Som","VES":"Bolívar Soberano","VND":"Đồng",
+    "VUV":"Vatu","WST":"Tala","XAF":"CFA Franc BEAC","XCD":"East Caribbean Dollar",
+    "XDR":"SDR","XOF":"CFA Franc BCEAO","XPF":"CFP Franc","YER":"Rial Yemeni"
+  };
+
+  const fromSel = document.getElementById("fromCurrency");
+  const toSel = document.getElementById("toCurrency");
+
+  async function populateCurrencies() {
+    try {
+      const res = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+      const data = await res.json();
+      const codes = Object.keys(data.rates).sort();
+      codes.forEach(code => {
+        const name = currencyNames[code] || code;
+        fromSel.innerHTML += `<option value="${code}">${code} - ${name}</option>`;
+        toSel.innerHTML += `<option value="${code}">${code} - ${name}</option>`;
+      });
+      fromSel.value = "TRY";
+      toSel.value = "USD";
+      convert();
+    } catch {
+      document.getElementById("rateInfo").textContent = "Failed to load currencies";
+    }
+  }
+
   async function convert() {
     const amount = parseFloat(document.getElementById("amount").value);
-    const from = document.getElementById("fromCurrency").value;
-    const to = document.getElementById("toCurrency").value;
+    const from = fromSel.value;
+    const to = toSel.value;
+    if (!from || !to) return;
     try {
       const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${from}`);
       const data = await res.json();
@@ -129,13 +181,13 @@
       document.getElementById("rateInfo").textContent = `1 ${from} = ${rate} ${to}`;
     } catch { document.getElementById("resultValue").textContent = "Error"; }
   }
+
   function swapCurrencies() {
-    const from = document.getElementById("fromCurrency");
-    const to = document.getElementById("toCurrency");
-    const tmp = from.value; from.value = to.value; to.value = tmp;
+    const tmp = fromSel.value; fromSel.value = toSel.value; toSel.value = tmp;
     convert();
   }
-  convert();
+
+  populateCurrencies();
 </script>
 </body>
 </html>

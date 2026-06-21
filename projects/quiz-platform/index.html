@@ -37,11 +37,17 @@
   .quiz-next{ width:100%; padding:12px; background:#1A1A1A; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
   .quiz-next:hover{ background:#2D4356; }
   .quiz-next:disabled{ opacity:.4; cursor:default; }
+  .quiz-feedback{ text-align:center; font-size:14px; font-weight:600; margin-bottom:12px; padding:10px; border-radius:8px; }
+  .quiz-feedback.correct{ background:#E9F5EE; color:#2A7A4D; }
+  .quiz-feedback.wrong{ background:#FDE8EC; color:#c73a4a; }
   .quiz-result{ text-align:center; padding:30px; }
   .quiz-result h2{ font-size:24px; margin-bottom:8px; }
   .quiz-result p{ font-size:16px; color:#4A4A48; }
   .quiz-result .score{ font-size:48px; font-weight:800; color:#2D4356; }
   .quiz-restart{ margin-top:16px; padding:10px 24px; background:#1A1A1A; color:#fff; border:none; border-radius:8px; font-size:14px; cursor:pointer; }
+
+  @keyframes confetti-fall{ 0%{transform:translateY(0) rotate(0);opacity:1;} 100%{transform:translateY(200px) rotate(720deg);opacity:0;} }
+  .confetti-piece{ position:fixed; width:8px; height:8px; border-radius:2px; pointer-events:none; z-index:100; animation:confetti-fall 1.2s ease-out forwards; }
 </style>
 </head>
 <body>
@@ -61,48 +67,44 @@
         <span class="quiz-score" id="quizScore">Score: 0</span>
       </div>
       <div class="quiz-question" id="quizQuestion">Loading...</div>
+      <div class="quiz-feedback" id="quizFeedback" style="display:none;"></div>
       <div class="quiz-options" id="quizOptions"></div>
       <button class="quiz-next" id="quizNext" onclick="nextQuestion()">Next</button>
     </div>
   </div>
   <div class="code-section">
     <h2>Source Code</h2>
-    <pre><span class="hl-cm">// Quiz Platform with dynamic questions</span>
+    <pre><span class="hl-cm">// Quiz Platform — with celebration + answer reveal</span>
 
-<span class="hl-kw">const</span> questions = [
-  { q: <span class="hl-str">"What does HTML stand for?"</span>,
-    o: [<span class="hl-str">"Hyper Text Markup Language"</span>, <span class="hl-str">"Home Tool Markup Language"</span>,
-        <span class="hl-str">"Hyperlinks and Text Markup Language"</span>, <span class="hl-str">"Hyper Tool Markup Language"</span>],
-    a: <span class="hl-num">0</span> },
-  <span class="hl-cm">// ... more questions</span>
-];
-<span class="hl-kw">let</span> current = <span class="hl-num">0</span>, score = <span class="hl-num">0</span>, selected = <span class="hl-kw">null</span>;
+<span class="hl-kw">let</span> score = <span class="hl-num">0</span>, answered = <span class="hl-kw">false</span>;
 
-<span class="hl-kw">function</span> <span class="hl-fn">loadQuestion</span>() {
-  <span class="hl-kw">const</span> q = questions[current];
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"quizQuestion"</span>).textContent = q.q;
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"quizOptions"</span>).<span class="hl-fn">innerHTML</span> =
-    q.o.<span class="hl-fn">map</span>((o, i) =&gt; <span class="hl-str">`&lt;div class="quiz-option" onclick="selectOption(${i})"&gt;${o}&lt;/div&gt;`</span>).<span class="hl-fn">join</span>(<span class="hl-str">""</span>);
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"quizCounter"</span>).textContent = <span class="hl-str">`${current+1} / ${questions.length}`</span>;
-  selected = <span class="hl-kw">null</span>;
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"quizNext"</span>).disabled = <span class="hl-kw">true</span>;
+<span class="hl-kw">function</span> <span class="hl-fn">fireConfetti</span>() {
+  <span class="hl-kw">const</span> colors = [<span class="hl-str">"#3FA66A"</span>,<span class="hl-str">"#2D4356"</span>,<span class="hl-str">"#e94560"</span>,<span class="hl-str">"#f78c6c"</span>];
+  <span class="hl-kw">for</span> (<span class="hl-kw">let</span> i = <span class="hl-num">0</span>; i &lt; <span class="hl-num">40</span>; i++) {
+    <span class="hl-kw">const</span> el = document.<span class="hl-fn">createElement</span>(<span class="hl-str">"div"</span>);
+    el.className = <span class="hl-str">"confetti-piece"</span>;
+    el.style.left = <span class="hl-fn">Math</span>.<span class="hl-fn">random</span>() * <span class="hl-num">100</span> + <span class="hl-str">"vw"</span>;
+    el.style.background = colors[<span class="hl-fn">Math</span>.<span class="hl-fn">floor</span>(<span class="hl-fn">Math</span>.<span class="hl-fn">random</span>() * colors.length)];
+    document.body.<span class="hl-fn">appendChild</span>(el);
+    <span class="hl-fn">setTimeout</span>(() =&gt; el.<span class="hl-fn">remove</span>(), <span class="hl-num">2000</span>);
+  }
 }
 
 <span class="hl-kw">function</span> <span class="hl-fn">selectOption</span>(i) {
-  selected = i;
+  <span class="hl-kw">if</span> (answered) <span class="hl-kw">return</span>;
+  answered = <span class="hl-kw">true</span>;
+  <span class="hl-kw">const</span> q = questions[current];
   <span class="hl-kw">const</span> opts = document.<span class="hl-fn">querySelectorAll</span>(<span class="hl-str">".quiz-option"</span>);
   opts.<span class="hl-fn">forEach</span>(o => o.className = <span class="hl-str">"quiz-option"</span>);
-  opts[i].classList.<span class="hl-fn">add</span>(<span class="hl-str">"selected"</span>);
+  opts[q.a].classList.<span class="hl-fn">add</span>(<span class="hl-str">"correct"</span>);
+  <span class="hl-kw">if</span> (i === q.a) {
+    score++;
+    <span class="hl-fn">fireConfetti</span>();
+  } <span class="hl-kw">else</span> {
+    opts[i].classList.<span class="hl-fn">add</span>(<span class="hl-str">"wrong"</span>);
+    <span class="hl-cm">// Show correct answer in feedback</span>
+  }
   document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"quizNext"</span>).disabled = <span class="hl-kw">false</span>;
-}
-
-<span class="hl-kw">function</span> <span class="hl-fn">nextQuestion</span>() {
-  <span class="hl-kw">if</span> (selected === <span class="hl-kw">null</span>) <span class="hl-kw">return</span>;
-  <span class="hl-kw">if</span> (selected === questions[current].a) score++;
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"quizScore"</span>).textContent = <span class="hl-str">`Score: ${score}`</span>;
-  current++;
-  <span class="hl-kw">if</span> (current &lt; questions.length) <span class="hl-fn">loadQuestion</span>();
-  <span class="hl-kw">else</span> <span class="hl-fn">showResult</span>();
 }</pre>
   </div>
 </div>
@@ -120,33 +122,71 @@
     { q: "What is the correct file extension for JavaScript?", o: [".java", ".js", ".txt", ".html"], a: 1 },
     { q: "Which symbol is used for comments in JavaScript?", o: ["//", "#", "&lt;!--", "/*"], a: 0 }
   ];
-  let current = 0, score = 0, selected = null;
+  let current = 0, score = 0, selected = null, answered = false;
+
   function loadQuestion() {
     const q = questions[current];
     document.getElementById("quizQuestion").textContent = q.q;
     document.getElementById("quizOptions").innerHTML = q.o.map((o, i) => `<div class="quiz-option" onclick="selectOption(${i})">${o}</div>`).join("");
     document.getElementById("quizCounter").textContent = `${current+1} / ${questions.length}`;
-    selected = null;
+    document.getElementById("quizFeedback").style.display = "none";
+    selected = null; answered = false;
     document.getElementById("quizNext").disabled = true;
   }
+
+  function fireConfetti() {
+    const colors = ["#3FA66A","#2D4356","#e94560","#f78c6c","#53d8fb","#c792ea","#c3e88d"];
+    for (let i = 0; i < 40; i++) {
+      const el = document.createElement("div");
+      el.className = "confetti-piece";
+      el.style.left = Math.random() * 100 + "vw";
+      el.style.top = "-10px";
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.width = (Math.random() * 6 + 4) + "px";
+      el.style.height = (Math.random() * 6 + 4) + "px";
+      el.style.animationDuration = (Math.random() * 0.6 + 0.8) + "s";
+      el.style.animationDelay = (Math.random() * 0.3) + "s";
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2000);
+    }
+  }
+
   function selectOption(i) {
+    if (answered) return;
     selected = i;
+    answered = true;
+    const q = questions[current];
     const opts = document.querySelectorAll(".quiz-option");
     opts.forEach(o => o.className = "quiz-option");
-    opts[i].classList.add("selected");
+    opts[q.a].classList.add("correct");
+    const fb = document.getElementById("quizFeedback");
+    if (i === q.a) {
+      score++;
+      document.getElementById("quizScore").textContent = `Score: ${score}`;
+      fb.className = "quiz-feedback correct";
+      fb.textContent = "✓ Correct!";
+      fb.style.display = "block";
+      fireConfetti();
+    } else {
+      opts[i].classList.add("wrong");
+      fb.className = "quiz-feedback wrong";
+      fb.textContent = `✗ Wrong! The correct answer is: ${q.o[q.a]}`;
+      fb.style.display = "block";
+    }
     document.getElementById("quizNext").disabled = false;
   }
+
   function nextQuestion() {
-    if (selected === null) return;
-    if (selected === questions[current].a) score++;
-    document.getElementById("quizScore").textContent = `Score: ${score}`;
+    if (!answered) return;
     current++;
     if (current < questions.length) loadQuestion();
     else showResult();
   }
+
   function showResult() {
-    document.getElementById("quizApp").innerHTML = `<div class="quiz-result"><div class="score">${score}/${questions.length}</div><p>${score === questions.length ? "Perfect score!" : score >= 7 ? "Great job!" : score >= 5 ? "Good effort!" : "Keep practicing!"}</p><button class="quiz-restart" onclick="restartQuiz()">Try Again</button></div>`;
+    document.getElementById("quizApp").innerHTML = `<div class="quiz-result"><div class="score">${score}/${questions.length}</div><p>${score === questions.length ? "🎉 Perfect score!" : score >= 7 ? "Great job! 👏" : score >= 5 ? "Good effort!" : "Keep practicing! 💪"}</p><button class="quiz-restart" onclick="restartQuiz()">Try Again</button></div>`;
   }
+
   function restartQuiz() { current=0;score=0;location.reload(); }
   loadQuestion();
 </script>

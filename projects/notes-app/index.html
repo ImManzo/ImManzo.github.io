@@ -35,8 +35,16 @@
   .note-title{ font-weight:600; font-size:14px; margin-bottom:4px; }
   .note-text{ font-size:13px; color:#4A4A48; word-wrap:break-word; white-space:pre-wrap; }
   .note-date{ font-size:11px; color:#6B6B6B; margin-top:8px; font-family:'JetBrains Mono',monospace; }
-  .note-del{ position:absolute; top:8px; right:10px; background:none; border:none; color:#ccc; cursor:pointer; font-size:14px; }
-  .note-del:hover{ color:#e94560; }
+  .note-actions{ position:absolute; top:8px; right:10px; display:flex; gap:4px; }
+  .note-actions button{ background:none; border:none; color:#ccc; cursor:pointer; font-size:13px; padding:2px 5px; }
+  .note-actions button:hover{ color:#2D4356; }
+  .note-actions .del:hover{ color:#e94560; }
+  .note-edit-input{ width:100%; padding:6px 8px; border:1px solid #E5E3DD; border-radius:6px; font-size:13px; margin-bottom:4px; outline:none; font-family:'Inter',sans-serif; }
+  .note-edit-input:focus{ border-color:#2D4356; }
+  .note-edit-actions{ display:flex; gap:6px; margin-top:4px; }
+  .note-edit-actions button{ padding:4px 10px; border-radius:5px; border:none; font-size:11px; cursor:pointer; font-weight:600; }
+  .note-edit-actions .save-btn{ background:#2D4356; color:#fff; }
+  .note-edit-actions .cancel-btn{ background:#E5E3DD; color:#4A4A48; }
   .notes-empty{ text-align:center; padding:40px; color:#6B6B6B; }
   .notes-empty svg{ width:48px; height:48px; color:#E5E3DD; margin-bottom:8px; }
 </style>
@@ -63,52 +71,58 @@
   </div>
   <div class="code-section">
     <h2>Source Code</h2>
-    <pre><span class="hl-cm">// Notes Taking App — localStorage CRUD</span>
+    <pre><span class="hl-cm">// Notes App — CRUD with edit support</span>
 
 <span class="hl-kw">let</span> notes = <span class="hl-fn">JSON</span>.<span class="hl-fn">parse</span>(<span class="hl-fn">localStorage</span>.<span class="hl-fn">getItem</span>(<span class="hl-str">"notes"</span>)) || [];
+<span class="hl-kw">let</span> editingId = <span class="hl-kw">null</span>;
 
-<span class="hl-kw">function</span> <span class="hl-fn">save</span>() {
-  <span class="hl-fn">localStorage</span>.<span class="hl-fn">setItem</span>(<span class="hl-str">"notes"</span>, <span class="hl-fn">JSON</span>.<span class="hl-fn">stringify</span>(notes));
+<span class="hl-kw">function</span> <span class="hl-fn">startEdit</span>(id) {
+  editingId = id;
   <span class="hl-fn">render</span>();
 }
 
-<span class="hl-kw">function</span> <span class="hl-fn">addNote</span>() {
-  <span class="hl-kw">const</span> title = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"noteTitle"</span>).value.<span class="hl-fn">trim</span>() || <span class="hl-str">"Untitled"</span>;
-  <span class="hl-kw">const</span> text = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"noteText"</span>).value.<span class="hl-fn">trim</span>();
+<span class="hl-kw">function</span> <span class="hl-fn">saveEdit</span>(id) {
+  <span class="hl-kw">const</span> card = document.<span class="hl-fn">querySelector</span>(<span class="hl-str">`[data-id="${id}"]`</span>);
+  <span class="hl-kw">const</span> title = card.<span class="hl-fn">querySelector</span>(<span class="hl-str">".edit-title"</span>).value.<span class="hl-fn">trim</span>() || <span class="hl-str">"Untitled"</span>;
+  <span class="hl-kw">const</span> text = card.<span class="hl-fn">querySelector</span>(<span class="hl-str">".edit-text"</span>).value.<span class="hl-fn">trim</span>();
   <span class="hl-kw">if</span> (!text) <span class="hl-kw">return</span>;
-  notes.<span class="hl-fn">push</span>({ id: <span class="hl-fn">Date</span>.<span class="hl-fn">now</span>(), title, text, date: <span class="hl-kw">new</span> <span class="hl-fn">Date</span>().<span class="hl-fn">toLocaleDateString</span>() });
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"noteTitle"</span>).value = <span class="hl-str">""</span>;
-  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"noteText"</span>).value = <span class="hl-str">""</span>;
-  <span class="hl-fn">save</span>();
-}
-
-<span class="hl-kw">function</span> <span class="hl-fn">deleteNote</span>(id) {
-  notes = notes.<span class="hl-fn">filter</span>(n => n.id !== id);
+  <span class="hl-kw">const</span> note = notes.<span class="hl-fn">find</span>(n => n.id === id);
+  <span class="hl-kw">if</span> (note) { note.title = title; note.text = text; }
+  editingId = <span class="hl-kw">null</span>;
   <span class="hl-fn">save</span>();
 }
 
 <span class="hl-kw">function</span> <span class="hl-fn">render</span>() {
-  <span class="hl-kw">const</span> grid = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"notesGrid"</span>);
-  <span class="hl-kw">if</span> (!notes.length) {
-    grid.<span class="hl-fn">innerHTML</span> = <span class="hl-str">`&lt;div class="notes-empty"&gt;
-      &lt;svg ...&gt;&lt;/svg&gt;&lt;p&gt;No notes yet&lt;/p&gt;&lt;/div&gt;`</span>;
-    <span class="hl-kw">return</span>;
-  }
-  grid.<span class="hl-fn">innerHTML</span> = notes.<span class="hl-fn">map</span>(n => <span class="hl-str">`&lt;div class="note-card"&gt;
-    &lt;button class="note-del" onclick="deleteNote(${n.id})"&gt;✕&lt;/button&gt;
-    &lt;div class="note-title"&gt;${n.title}&lt;/div&gt;
-    &lt;div class="note-text"&gt;${n.text}&lt;/div&gt;
-    &lt;div class="note-date"&gt;${n.date}&lt;/div&gt;
-  &lt;/div&gt;`</span>).<span class="hl-fn">join</span>(<span class="hl-str">""</span>);
-}
-
-<span class="hl-fn">render</span>();</pre>
+  grid.<span class="hl-fn">innerHTML</span> = notes.<span class="hl-fn">map</span>(n => {
+    <span class="hl-kw">if</span> (n.id === editingId) {
+      <span class="hl-kw">return</span> <span class="hl-str">`&lt;div class="note-card" data-id="${n.id}"&gt;
+        &lt;input class="note-edit-input edit-title" value="${n.title}"&gt;
+        &lt;textarea class="note-edit-input edit-text"&gt;${n.text}&lt;/textarea&gt;
+        &lt;div class="note-edit-actions"&gt;
+          &lt;button onclick="saveEdit(${n.id})"&gt;Save&lt;/button&gt;
+          &lt;button onclick="cancelEdit()"&gt;Cancel&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;`</span>;
+    }
+    <span class="hl-kw">return</span> <span class="hl-str">`&lt;div class="note-card" data-id="${n.id}"&gt;
+      &lt;div class="note-actions"&gt;
+        &lt;button onclick="startEdit(${n.id})"&gt;✎&lt;/button&gt;
+        &lt;button onclick="deleteNote(${n.id})"&gt;✕&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class="note-title"&gt;${n.title}&lt;/div&gt;
+      &lt;div class="note-text"&gt;${n.text}&lt;/div&gt;
+    &lt;/div&gt;`</span>;
+  }).<span class="hl-fn">join</span>(<span class="hl-str">""</span>);
+}</pre>
   </div>
 </div>
 <footer><span>Mansour Kanswa</span></footer>
 <script>
   let notes = JSON.parse(localStorage.getItem("notes")) || [];
+  let editingId = null;
+
   function save() { localStorage.setItem("notes", JSON.stringify(notes)); render(); }
+
   function addNote() {
     const title = document.getElementById("noteTitle").value.trim() || "Untitled";
     const text = document.getElementById("noteText").value.trim();
@@ -118,11 +132,58 @@
     document.getElementById("noteText").value = "";
     save();
   }
+
   function deleteNote(id) { notes = notes.filter(n => n.id !== id); save(); }
+
+  function startEdit(id) {
+    editingId = id;
+    render();
+    const card = document.querySelector(`[data-id="${id}"]`);
+    if (card) {
+      const titleInput = card.querySelector(".edit-title");
+      const textInput = card.querySelector(".edit-text");
+      if (titleInput) titleInput.focus();
+    }
+  }
+
+  function saveEdit(id) {
+    const card = document.querySelector(`[data-id="${id}"]`);
+    if (!card) return;
+    const title = card.querySelector(".edit-title").value.trim() || "Untitled";
+    const text = card.querySelector(".edit-text").value.trim();
+    if (!text) return;
+    const note = notes.find(n => n.id === id);
+    if (note) { note.title = title; note.text = text; }
+    editingId = null;
+    save();
+  }
+
+  function cancelEdit() { editingId = null; render(); }
+
   function render() {
     const grid = document.getElementById("notesGrid");
     if (!notes.length) { grid.innerHTML = '<div class="notes-empty"><p>No notes yet. Write one above!</p></div>'; return; }
-    grid.innerHTML = notes.map(n => `<div class="note-card"><button class="note-del" onclick="deleteNote(${n.id})">✕</button><div class="note-title">${n.title}</div><div class="note-text">${n.text}</div><div class="note-date">${n.date}</div></div>`).join("");
+    grid.innerHTML = notes.map(n => {
+      if (n.id === editingId) {
+        return `<div class="note-card" data-id="${n.id}">
+          <input class="note-edit-input edit-title" value="${n.title}">
+          <textarea class="note-edit-input edit-text" style="resize:vertical;min-height:60px;font-family:'Inter',sans-serif;">${n.text}</textarea>
+          <div class="note-edit-actions">
+            <button class="save-btn" onclick="saveEdit(${n.id})">Save</button>
+            <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+          </div>
+        </div>`;
+      }
+      return `<div class="note-card" data-id="${n.id}">
+        <div class="note-actions">
+          <button onclick="startEdit(${n.id})" title="Edit">✎</button>
+          <button class="del" onclick="deleteNote(${n.id})" title="Delete">✕</button>
+        </div>
+        <div class="note-title">${n.title}</div>
+        <div class="note-text">${n.text}</div>
+        <div class="note-date">${n.date}</div>
+      </div>`;
+    }).join("");
   }
   render();
 </script>
