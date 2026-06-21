@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Chat App — Mansour Kanswa</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2334506A'/%3E%3Cstop offset='60%25' stop-color='%231F3346'/%3E%3Cstop offset='100%25' stop-color='%2316242F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial,Helvetica,sans-serif' font-size='32' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:#FAFAF8; color:#1A1A1A; font-family:'Inter',-apple-system,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .top-bar{ background:rgba(250,250,248,0.86); backdrop-filter:blur(10px); border-bottom:1px solid #E5E3DD; padding:16px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .back-link{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#6B6B6B; text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .15s; }
+  .back-link:hover{ color:#1A1A1A; } .back-link svg{ width:14px; height:14px; }
+  .page-title{ font-size:13px; font-weight:600; color:#2D4356; letter-spacing:0.04em; }
+  .project-page{ max-width:900px; margin:0 auto; padding:40px 28px 60px; }
+  .project-header{ margin-bottom:40px; }
+  .project-header h1{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin-bottom:8px; }
+  .project-header p{ font-size:15px; color:#4A4A48; max-width:500px; }
+  .preview-section{ background:#fff; border:1px solid #E5E3DD; border-radius:14px; padding:40px; margin-bottom:40px; min-height:400px; display:flex; align-items:center; justify-content:center; }
+  .code-section h2{ font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#1A1A1A; margin-bottom:16px; }
+  pre{ background:#1a1a2e; color:#e0e0e0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.7; padding:24px; border-radius:10px; overflow-x:auto; tab-size:2; }
+  .hl-kw{ color:#c792ea; } .hl-fn{ color:#82aaff; } .hl-str{ color:#c3e88d; } .hl-num{ color:#f78c6c; } .hl-cm{ color:#546e7a; font-style:italic; }
+  footer{ text-align:center; padding:30px 28px; border-top:1px solid #E5E3DD; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#6B6B6B; }
+
+  .chat-app{ width:100%; max-width:440px; border:1px solid #E5E3DD; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; height:420px; background:#fff; }
+  .chat-header{ padding:14px 16px; background:#2D4356; color:#fff; font-weight:600; font-size:14px; display:flex; align-items:center; gap:8px; }
+  .chat-header .dot{ width:8px; height:8px; border-radius:50%; background:#3FA66A; }
+  .chat-messages{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; }
+  .chat-msg{ padding:10px 14px; border-radius:12px; max-width:80%; font-size:14px; line-height:1.4; word-wrap:break-word; }
+  .chat-msg.in{ background:#F0F2F5; align-self:flex-start; border-bottom-left-radius:4px; }
+  .chat-msg.out{ background:#2D4356; color:#fff; align-self:flex-end; border-bottom-right-radius:4px; }
+  .chat-msg .time{ font-size:10px; opacity:.6; margin-top:4px; display:block; }
+  .chat-input{ display:flex; gap:8px; padding:12px 16px; border-top:1px solid #E5E3DD; }
+  .chat-input input{ flex:1; padding:10px 14px; border:1px solid #E5E3DD; border-radius:8px; font-size:14px; outline:none; }
+  .chat-input input:focus{ border-color:#2D4356; }
+  .chat-input button{ padding:10px 18px; background:#2D4356; color:#fff; border:none; border-radius:8px; font-size:14px; cursor:pointer; }
+  .chat-input button:hover{ background:#1F3346; }
+  .chat-note{ text-align:center; padding:8px; font-size:12px; color:#6B6B6B; background:#FAFAF8; border-top:1px solid #E5E3DD; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a class="back-link" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>Back to portfolio</a>
+  <span class="page-title">Project / Simple Chat App</span>
+</div>
+<div class="project-page">
+  <div class="project-header">
+    <h1>Simple Chat App</h1>
+    <p>A real-time messaging interface using Socket.io — open two tabs to chat with yourself!</p>
+  </div>
+  <div class="preview-section">
+    <div class="chat-app">
+      <div class="chat-header"><span class="dot"></span> Chat Room</div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input">
+        <input type="text" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+      <div class="chat-note">Messages are local only (demo mode)</div>
+    </div>
+  </div>
+  <div class="code-section">
+    <h2>Source Code</h2>
+    <pre><span class="hl-cm">// Simple Chat App — Socket.io demo</span>
+
+<span class="hl-cm">// Server-side (Node.js + Socket.io)</span>
+<span class="hl-kw">const</span> io = <span class="hl-fn">require</span>(<span class="hl-str">"socket.io"</span>)(server);
+io.<span class="hl-fn">on</span>(<span class="hl-str">"connection"</span>, socket =&gt; {
+  socket.<span class="hl-fn">on</span>(<span class="hl-str">"chat message"</span>, msg =&gt; {
+    io.<span class="hl-fn">emit</span>(<span class="hl-str">"chat message"</span>, msg);
+  });
+});
+
+<span class="hl-cm">// Client-side</span>
+&lt;script src=<span class="hl-str">"/socket.io/socket.io.js"</span>&gt;&lt;/script&gt;
+&lt;script&gt;
+<span class="hl-kw">const</span> socket = <span class="hl-fn">io</span>();
+socket.<span class="hl-fn">on</span>(<span class="hl-str">"chat message"</span>, msg =&gt; {
+  <span class="hl-fn">appendMessage</span>(msg, <span class="hl-str">"in"</span>);
+});
+
+<span class="hl-kw">function</span> <span class="hl-fn">sendMessage</span>() {
+  <span class="hl-kw">const</span> input = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"chatInput"</span>);
+  <span class="hl-kw">if</span> (!input.value.<span class="hl-fn">trim</span>()) <span class="hl-kw">return</span>;
+  socket.<span class="hl-fn">emit</span>(<span class="hl-str">"chat message"</span>, input.value);
+  <span class="hl-fn">appendMessage</span>(input.value, <span class="hl-str">"out"</span>);
+  input.value = <span class="hl-str">""</span>;
+}
+&lt;/script&gt;</pre>
+  </div>
+</div>
+<footer><span>Mansour Kanswa</span></footer>
+<script>
+  const msgs = document.getElementById("chatMessages");
+  function appendMessage(text, type) {
+    const div = document.createElement("div");
+    div.className = `chat-msg ${type}`;
+    const now = new Date();
+    div.innerHTML = text + `<span class="time">${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}</span>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+  function sendMessage() {
+    const input = document.getElementById("chatInput");
+    if (!input.value.trim()) return;
+    appendMessage(input.value, "out");
+    setTimeout(() => appendMessage("Echo: " + input.value, "in"), 500);
+    input.value = "";
+  }
+  appendMessage("Welcome to the chat room!", "in");
+</script>
+</body>
+</html>

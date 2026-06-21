@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password Generator — Mansour Kanswa</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2334506A'/%3E%3Cstop offset='60%25' stop-color='%231F3346'/%3E%3Cstop offset='100%25' stop-color='%2316242F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial,Helvetica,sans-serif' font-size='32' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:#FAFAF8; color:#1A1A1A; font-family:'Inter',-apple-system,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .top-bar{ background:rgba(250,250,248,0.86); backdrop-filter:blur(10px); border-bottom:1px solid #E5E3DD; padding:16px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .back-link{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#6B6B6B; text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .15s; }
+  .back-link:hover{ color:#1A1A1A; } .back-link svg{ width:14px; height:14px; }
+  .page-title{ font-size:13px; font-weight:600; color:#2D4356; letter-spacing:0.04em; }
+  .project-page{ max-width:900px; margin:0 auto; padding:40px 28px 60px; }
+  .project-header{ margin-bottom:40px; }
+  .project-header h1{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin-bottom:8px; }
+  .project-header p{ font-size:15px; color:#4A4A48; max-width:500px; }
+  .preview-section{ background:#fff; border:1px solid #E5E3DD; border-radius:14px; padding:40px; margin-bottom:40px; min-height:400px; }
+  .code-section h2{ font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#1A1A1A; margin-bottom:16px; }
+  pre{ background:#1a1a2e; color:#e0e0e0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.7; padding:24px; border-radius:10px; overflow-x:auto; tab-size:2; }
+  .hl-kw{ color:#c792ea; } .hl-fn{ color:#82aaff; } .hl-str{ color:#c3e88d; } .hl-num{ color:#f78c6c; } .hl-cm{ color:#546e7a; font-style:italic; }
+  footer{ text-align:center; padding:30px 28px; border-top:1px solid #E5E3DD; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#6B6B6B; }
+
+  .pw-app{ max-width:420px; margin:0 auto; }
+  .pw-output{ display:flex; align-items:center; gap:8px; margin-bottom:20px; }
+  .pw-output input{ flex:1; padding:12px 14px; border:1px solid #E5E3DD; border-radius:8px; font-size:16px; font-family:'JetBrains Mono',monospace; outline:none; letter-spacing:1px; }
+  .pw-output input:focus{ border-color:#2D4356; }
+  .pw-output button{ padding:12px 16px; background:#1A1A1A; color:#fff; border:none; border-radius:8px; font-size:14px; cursor:pointer; font-weight:600; white-space:nowrap; }
+  .pw-output button:hover{ background:#2D4356; }
+  .pw-options{ border:1px solid #E5E3DD; border-radius:10px; padding:20px; }
+  .pw-opt-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .pw-opt-row:last-child{ margin-bottom:0; }
+  .pw-opt-row label{ font-size:14px; color:#4A4A48; }
+  .pw-opt-row input[type="number"]{ width:56px; padding:6px 8px; border:1px solid #E5E3DD; border-radius:6px; font-size:14px; text-align:center; }
+  .pw-strength{ display:flex; gap:4px; margin-top:16px; }
+  .pw-strength div{ height:6px; border-radius:3px; flex:1; background:#E5E3DD; transition:background .2s; }
+  .pw-strength.active-1 div:nth-child(1){ background:#e94560; }
+  .pw-strength.active-2 div:nth-child(1),.pw-strength.active-2 div:nth-child(2){ background:#f78c6c; }
+  .pw-strength.active-3 div:nth-child(1),.pw-strength.active-3 div:nth-child(2),.pw-strength.active-3 div:nth-child(3){ background:#c3e88d; }
+  .pw-strength.active-4 div{ background:#3FA66A; }
+  .pw-copy-msg{ font-size:12px; color:#3FA66A; margin-top:8px; text-align:center; opacity:0; transition:opacity .3s; }
+  .pw-copy-msg.show{ opacity:1; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a class="back-link" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>Back to portfolio</a>
+  <span class="page-title">Project / Password Generator</span>
+</div>
+<div class="project-page">
+  <div class="project-header">
+    <h1>Password Generator</h1>
+    <p>Generate strong random passwords with custom length and character options.</p>
+  </div>
+  <div class="preview-section">
+    <div class="pw-app">
+      <div class="pw-output">
+        <input type="text" id="pwOutput" readonly>
+        <button onclick="copyPassword()">Copy</button>
+      </div>
+      <div class="pw-options">
+        <div class="pw-opt-row">
+          <label>Password Length</label>
+          <input type="number" id="pwLength" value="16" min="4" max="64">
+        </div>
+        <div class="pw-opt-row">
+          <label>Uppercase (A-Z)</label>
+          <input type="checkbox" id="pwUpper" checked>
+        </div>
+        <div class="pw-opt-row">
+          <label>Lowercase (a-z)</label>
+          <input type="checkbox" id="pwLower" checked>
+        </div>
+        <div class="pw-opt-row">
+          <label>Numbers (0-9)</label>
+          <input type="checkbox" id="pwNumbers" checked>
+        </div>
+        <div class="pw-opt-row">
+          <label>Symbols (!@#$%^&*)</label>
+          <input type="checkbox" id="pwSymbols">
+        </div>
+        <button style="width:100%;padding:12px;background:#1A1A1A;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;" onclick="generatePassword()">Generate Password</button>
+        <div class="pw-strength" id="pwStrength"></div>
+        <div class="pw-copy-msg" id="pwCopyMsg">Copied to clipboard!</div>
+      </div>
+    </div>
+  </div>
+  <div class="code-section">
+    <h2>Source Code</h2>
+    <pre><span class="hl-cm">// Random Password Generator</span>
+
+<span class="hl-kw">const</span> upper = <span class="hl-str">"ABCDEFGHIJKLMNOPQRSTUVWXYZ"</span>;
+<span class="hl-kw">const</span> lower = <span class="hl-str">"abcdefghijklmnopqrstuvwxyz"</span>;
+<span class="hl-kw">const</span> nums  = <span class="hl-str">"0123456789"</span>;
+<span class="hl-kw">const</span> syms  = <span class="hl-str">"!@#$%^&amp;*()_+-=[]{}|;:,./&lt;&gt;?"</span>;
+
+<span class="hl-kw">function</span> <span class="hl-fn">generatePassword</span>() {
+  <span class="hl-kw">let</span> chars = <span class="hl-str">""</span>;
+  <span class="hl-kw">if</span> (document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"pwUpper"</span>).checked) chars += upper;
+  <span class="hl-kw">if</span> (document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"pwLower"</span>).checked) chars += lower;
+  <span class="hl-kw">if</span> (document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"pwNumbers"</span>).checked) chars += nums;
+  <span class="hl-kw">if</span> (document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"pwSymbols"</span>).checked) chars += syms;
+  <span class="hl-kw">if</span> (!chars) { <span class="hl-fn">alert</span>(<span class="hl-str">"Select at least one set"</span>); <span class="hl-kw">return</span>; }
+
+  <span class="hl-kw">const</span> length = <span class="hl-fn">parseInt</span>(document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"pwLength"</span>).value);
+  <span class="hl-kw">let</span> password = <span class="hl-str">""</span>;
+  <span class="hl-kw">for</span> (<span class="hl-kw">let</span> i = <span class="hl-num">0</span>; i &lt; length; i++) {
+    password += chars[<span class="hl-fn">Math</span>.<span class="hl-fn">floor</span>(<span class="hl-fn">Math</span>.<span class="hl-fn">random</span>() * chars.length)];
+  }
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"pwOutput"</span>).value = password;
+  <span class="hl-fn">updateStrength</span>(length, chars);
+}
+
+<span class="hl-kw">function</span> <span class="hl-fn">updateStrength</span>(len, chars) {
+  <span class="hl-kw">const</span> sets = <span class="hl-fn">Math</span>.<span class="hl-fn">floor</span>(len / <span class="hl-num">8</span>) + (chars.length &gt; <span class="hl-num">26</span> ? <span class="hl-num">1</span> : <span class="hl-num">0</span>);
+  <span class="hl-cm">// ... update UI bars</span>
+}</pre>
+  </div>
+</div>
+<footer><span>Mansour Kanswa</span></footer>
+<script>
+  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lower = "abcdefghijklmnopqrstuvwxyz";
+  const nums = "0123456789";
+  const syms = "!@#$%^&*()_+-=[]{}|;:,./<>?";
+  function generatePassword() {
+    let chars = "";
+    if (document.getElementById("pwUpper").checked) chars += upper;
+    if (document.getElementById("pwLower").checked) chars += lower;
+    if (document.getElementById("pwNumbers").checked) chars += nums;
+    if (document.getElementById("pwSymbols").checked) chars += syms;
+    if (!chars) { alert("Select at least one character set"); return; }
+    const length = parseInt(document.getElementById("pwLength").value);
+    let password = "";
+    for (let i = 0; i < length; i++) { password += chars[Math.floor(Math.random() * chars.length)]; }
+    document.getElementById("pwOutput").value = password;
+    const sets = [document.getElementById("pwUpper").checked, document.getElementById("pwLower").checked, document.getElementById("pwNumbers").checked, document.getElementById("pwSymbols").checked].filter(Boolean).length;
+    const strength = length >= 12 && sets >= 3 ? 4 : length >= 8 && sets >= 2 ? 3 : length >= 6 ? 2 : 1;
+    const bars = document.getElementById("pwStrength");
+    bars.className = "pw-strength active-" + strength;
+    bars.innerHTML = '<div></div><div></div><div></div><div></div>';
+  }
+  function copyPassword() {
+    const input = document.getElementById("pwOutput");
+    if (!input.value) return;
+    navigator.clipboard.writeText(input.value);
+    const msg = document.getElementById("pwCopyMsg");
+    msg.classList.add("show");
+    setTimeout(() => msg.classList.remove("show"), 1500);
+  }
+  generatePassword();
+</script>
+</body>
+</html>

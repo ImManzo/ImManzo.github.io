@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker — Mansour Kanswa</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2334506A'/%3E%3Cstop offset='60%25' stop-color='%231F3346'/%3E%3Cstop offset='100%25' stop-color='%2316242F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial,Helvetica,sans-serif' font-size='32' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:#FAFAF8; color:#1A1A1A; font-family:'Inter',-apple-system,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .top-bar{ background:rgba(250,250,248,0.86); backdrop-filter:blur(10px); border-bottom:1px solid #E5E3DD; padding:16px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .back-link{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#6B6B6B; text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .15s; }
+  .back-link:hover{ color:#1A1A1A; } .back-link svg{ width:14px; height:14px; }
+  .page-title{ font-size:13px; font-weight:600; color:#2D4356; letter-spacing:0.04em; }
+  .project-page{ max-width:900px; margin:0 auto; padding:40px 28px 60px; }
+  .project-header{ margin-bottom:40px; }
+  .project-header h1{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin-bottom:8px; }
+  .project-header p{ font-size:15px; color:#4A4A48; max-width:500px; }
+  .preview-section{ background:#fff; border:1px solid #E5E3DD; border-radius:14px; padding:40px; margin-bottom:40px; min-height:400px; }
+  .code-section h2{ font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#1A1A1A; margin-bottom:16px; }
+  pre{ background:#1a1a2e; color:#e0e0e0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.7; padding:24px; border-radius:10px; overflow-x:auto; tab-size:2; }
+  .hl-kw{ color:#c792ea; } .hl-fn{ color:#82aaff; } .hl-str{ color:#c3e88d; } .hl-num{ color:#f78c6c; } .hl-cm{ color:#546e7a; font-style:italic; }
+  footer{ text-align:center; padding:30px 28px; border-top:1px solid #E5E3DD; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#6B6B6B; }
+
+  .expense-app{ max-width:480px; margin:0 auto; }
+  .expense-balance{ text-align:center; margin-bottom:24px; }
+  .expense-balance h3{ font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:#6B6B6B; }
+  .expense-balance strong{ font-size:36px; font-weight:800; display:block; }
+  .expense-balance.positive strong{ color:#3FA66A; }
+  .expense-balance.negative strong{ color:#e94560; }
+  .expense-inc-exp{ display:flex; gap:16px; margin-bottom:20px; }
+  .expense-inc-exp > div{ flex:1; text-align:center; padding:14px; border:1px solid #E5E3DD; border-radius:8px; }
+  .expense-inc-exp .inc{ color:#3FA66A; font-weight:700; }
+  .expense-inc-exp .exp{ color:#e94560; font-weight:700; }
+  .expense-form{ display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+  .expense-form input,.expense-form select{ padding:10px 12px; border:1px solid #E5E3DD; border-radius:8px; font-size:13px; outline:none; }
+  .expense-form input:focus,.expense-form select:focus{ border-color:#2D4356; }
+  .expense-form input[type="text"]{ flex:1; min-width:120px; }
+  .expense-form input[type="number"]{ width:90px; }
+  .expense-form button{ padding:10px 16px; background:#1A1A1A; color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+  .expense-form button:hover{ background:#2D4356; }
+  .expense-list{ list-style:none; }
+  .expense-item{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border:1px solid #E5E3DD; border-radius:8px; margin-bottom:8px; background:#fff; }
+  .expense-item-info{ display:flex; flex-direction:column; }
+  .expense-item-name{ font-size:14px; font-weight:500; }
+  .expense-item-cat{ font-size:11px; color:#6B6B6B; font-family:'JetBrains Mono',monospace; }
+  .expense-item-amount{ font-weight:700; font-size:15px; }
+  .expense-item-amount.negative{ color:#e94560; }
+  .expense-item button{ background:none; border:none; color:#ccc; cursor:pointer; font-size:16px; }
+  .expense-item button:hover{ color:#e94560; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a class="back-link" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>Back to portfolio</a>
+  <span class="page-title">Project / Expense Tracker</span>
+</div>
+<div class="project-page">
+  <div class="project-header">
+    <h1>Expense Tracker</h1>
+    <p>Track your income and expenses with category labels and a running balance.</p>
+  </div>
+  <div class="preview-section">
+    <div class="expense-app">
+      <div class="expense-balance positive" id="balanceBox">
+        <h3>Current Balance</h3>
+        <strong id="balance">$0.00</strong>
+      </div>
+      <div class="expense-inc-exp">
+        <div><span style="font-size:12px;color:#6B6B6B;">Income</span><div class="inc" id="income">$0</div></div>
+        <div><span style="font-size:12px;color:#6B6B6B;">Expenses</span><div class="exp" id="expenses">$0</div></div>
+      </div>
+      <div class="expense-form">
+        <input type="text" id="expName" placeholder="Description">
+        <input type="number" id="expAmount" placeholder="Amount">
+        <select id="expCategory">
+          <option value="Food">Food</option>
+          <option value="Transport">Transport</option>
+          <option value="Bills">Bills</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Income">Income</option>
+          <option value="Other">Other</option>
+        </select>
+        <button onclick="addTransaction()">+ Add</button>
+      </div>
+      <ul class="expense-list" id="expenseList"></ul>
+    </div>
+  </div>
+  <div class="code-section">
+    <h2>Source Code</h2>
+    <pre><span class="hl-cm">// Expense Tracker with localStorage</span>
+
+<span class="hl-kw">let</span> transactions = <span class="hl-fn">JSON</span>.<span class="hl-fn">parse</span>(<span class="hl-fn">localStorage</span>.<span class="hl-fn">getItem</span>(<span class="hl-str">"transactions"</span>)) || [];
+
+<span class="hl-kw">function</span> <span class="hl-fn">save</span>() {
+  <span class="hl-fn">localStorage</span>.<span class="hl-fn">setItem</span>(<span class="hl-str">"transactions"</span>, <span class="hl-fn">JSON</span>.<span class="hl-fn">stringify</span>(transactions));
+  <span class="hl-fn">render</span>();
+}
+
+<span class="hl-kw">function</span> <span class="hl-fn">addTransaction</span>() {
+  <span class="hl-kw">const</span> name = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"expName"</span>).value.<span class="hl-fn">trim</span>();
+  <span class="hl-kw">const</span> amount = <span class="hl-fn">parseFloat</span>(document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"expAmount"</span>).value);
+  <span class="hl-kw">const</span> category = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"expCategory"</span>).value;
+  <span class="hl-kw">if</span> (!name || !amount) <span class="hl-kw">return</span>;
+  transactions.<span class="hl-fn">push</span>({ id: <span class="hl-fn">Date</span>.<span class="hl-fn">now</span>(), name, amount, category });
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"expName"</span>).value = <span class="hl-str">""</span>;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"expAmount"</span>).value = <span class="hl-str">""</span>;
+  <span class="hl-fn">save</span>();
+}
+
+<span class="hl-kw">function</span> <span class="hl-fn">deleteTransaction</span>(id) {
+  transactions = transactions.<span class="hl-fn">filter</span>(t => t.id !== id);
+  <span class="hl-fn">save</span>();
+}
+
+<span class="hl-kw">function</span> <span class="hl-fn">render</span>() {
+  <span class="hl-kw">const</span> amount = (t) => t.category === <span class="hl-str">"Income"</span> ? t.amount : -t.amount;
+  <span class="hl-kw">const</span> total = transactions.<span class="hl-fn">reduce</span>((sum, t) => sum + <span class="hl-fn">amount</span>(t), <span class="hl-num">0</span>);
+  <span class="hl-kw">const</span> inc = transactions.<span class="hl-fn">filter</span>(t => t.category === <span class="hl-str">"Income"</span>)
+    .<span class="hl-fn">reduce</span>((s, t) => s + t.amount, <span class="hl-num">0</span>);
+  <span class="hl-kw">const</span> exp = transactions.<span class="hl-fn">filter</span>(t => t.category !== <span class="hl-str">"Income"</span>)
+    .<span class="hl-fn">reduce</span>((s, t) => s + t.amount, <span class="hl-num">0</span>);
+  <span class="hl-cm">// ... render UI</span>
+}</pre>
+  </div>
+</div>
+<footer><span>Mansour Kanswa</span></footer>
+<script>
+  let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+  function save() { localStorage.setItem("transactions", JSON.stringify(transactions)); render(); }
+  function addTransaction() {
+    const name = document.getElementById("expName").value.trim();
+    const amount = parseFloat(document.getElementById("expAmount").value);
+    const category = document.getElementById("expCategory").value;
+    if (!name || !amount) return;
+    transactions.push({ id: Date.now(), name, amount, category });
+    document.getElementById("expName").value = "";
+    document.getElementById("expAmount").value = "";
+    save();
+  }
+  function deleteTransaction(id) { transactions = transactions.filter(t => t.id !== id); save(); }
+  function render() {
+    const fn = (t) => t.category === "Income" ? t.amount : -t.amount;
+    const total = transactions.reduce((s, t) => s + fn(t), 0);
+    const inc = transactions.filter(t => t.category === "Income").reduce((s, t) => s + t.amount, 0);
+    const exp = transactions.filter(t => t.category !== "Income").reduce((s, t) => s + t.amount, 0);
+    const box = document.getElementById("balanceBox");
+    box.className = "expense-balance " + (total >= 0 ? "positive" : "negative");
+    document.getElementById("balance").textContent = `$${total.toFixed(2)}`;
+    document.getElementById("income").textContent = `+$${inc.toFixed(2)}`;
+    document.getElementById("expenses").textContent = `-$${exp.toFixed(2)}`;
+    document.getElementById("expenseList").innerHTML = transactions.map(t => `
+      <li class="expense-item">
+        <div class="expense-item-info">
+          <span class="expense-item-name">${t.name}</span>
+          <span class="expense-item-cat">${t.category}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="expense-item-amount ${t.category==='Income'?'':'negative'}">${t.category === 'Income' ? '+' : '-'}$${t.amount.toFixed(2)}</span>
+          <button onclick="deleteTransaction(${t.id})">✕</button>
+        </div>
+      </li>
+    `).join("");
+  }
+  render();
+</script>
+</body>
+</html>

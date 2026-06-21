@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Currency Converter — Mansour Kanswa</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2334506A'/%3E%3Cstop offset='60%25' stop-color='%231F3346'/%3E%3Cstop offset='100%25' stop-color='%2316242F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial,Helvetica,sans-serif' font-size='32' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:#FAFAF8; color:#1A1A1A; font-family:'Inter',-apple-system,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .top-bar{ background:rgba(250,250,248,0.86); backdrop-filter:blur(10px); border-bottom:1px solid #E5E3DD; padding:16px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .back-link{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#6B6B6B; text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .15s; }
+  .back-link:hover{ color:#1A1A1A; } .back-link svg{ width:14px; height:14px; }
+  .page-title{ font-size:13px; font-weight:600; color:#2D4356; letter-spacing:0.04em; }
+  .project-page{ max-width:900px; margin:0 auto; padding:40px 28px 60px; }
+  .project-header{ margin-bottom:40px; }
+  .project-header h1{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin-bottom:8px; }
+  .project-header p{ font-size:15px; color:#4A4A48; max-width:500px; }
+  .preview-section{ background:#fff; border:1px solid #E5E3DD; border-radius:14px; padding:40px; margin-bottom:40px; min-height:400px; }
+  .code-section h2{ font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#1A1A1A; margin-bottom:16px; }
+  pre{ background:#1a1a2e; color:#e0e0e0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.7; padding:24px; border-radius:10px; overflow-x:auto; tab-size:2; }
+  .hl-kw{ color:#c792ea; } .hl-fn{ color:#82aaff; } .hl-str{ color:#c3e88d; } .hl-num{ color:#f78c6c; } .hl-cm{ color:#546e7a; font-style:italic; }
+  footer{ text-align:center; padding:30px 28px; border-top:1px solid #E5E3DD; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#6B6B6B; }
+
+  .converter{ max-width:400px; margin:0 auto; }
+  .converter-row{ margin-bottom:16px; }
+  .converter-row label{ display:block; font-size:12px; font-weight:600; color:#6B6B6B; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.04em; }
+  .converter-row input,.converter-row select{ width:100%; padding:10px 14px; border:1px solid #E5E3DD; border-radius:8px; font-size:14px; outline:none; }
+  .converter-row input:focus,.converter-row select:focus{ border-color:#2D4356; }
+  .converter-swap{ text-align:center; margin:8px 0; }
+  .converter-swap button{ background:none; border:1px solid #E5E3DD; border-radius:50%; width:36px; height:36px; font-size:16px; cursor:pointer; transition:.15s; }
+  .converter-swap button:hover{ border-color:#2D4356; background:#E8EDF1; }
+  .converter-result{ background:#E8EDF1; border-radius:10px; padding:20px; text-align:center; margin-top:8px; }
+  .converter-result strong{ font-size:28px; display:block; margin-top:4px; color:#2D4356; }
+  .converter-rate{ font-size:12px; color:#6B6B6B; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a class="back-link" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>Back to portfolio</a>
+  <span class="page-title">Project / Currency Converter</span>
+</div>
+<div class="project-page">
+  <div class="project-header">
+    <h1>Currency Converter</h1>
+    <p>Convert between currencies using live exchange rates from a public API.</p>
+  </div>
+  <div class="preview-section">
+    <div class="converter">
+      <div class="converter-row">
+        <label>Amount</label>
+        <input type="number" id="amount" value="1" min="0" step="0.01">
+      </div>
+      <div class="converter-row">
+        <label>From</label>
+        <select id="fromCurrency">
+          <option value="USD">USD - US Dollar</option>
+          <option value="EUR">EUR - Euro</option>
+          <option value="GBP">GBP - British Pound</option>
+          <option value="JPY">JPY - Japanese Yen</option>
+          <option value="TRY" selected>TRY - Turkish Lira</option>
+          <option value="EGP">EGP - Egyptian Pound</option>
+          <option value="AED">AED - UAE Dirham</option>
+          <option value="SAR">SAR - Saudi Riyal</option>
+        </select>
+      </div>
+      <div class="converter-swap">
+        <button onclick="swapCurrencies()">⇄</button>
+      </div>
+      <div class="converter-row">
+        <label>To</label>
+        <select id="toCurrency">
+          <option value="USD" selected>USD - US Dollar</option>
+          <option value="EUR">EUR - Euro</option>
+          <option value="GBP">GBP - British Pound</option>
+          <option value="JPY">JPY - Japanese Yen</option>
+          <option value="TRY">TRY - Turkish Lira</option>
+          <option value="EGP">EGP - Egyptian Pound</option>
+          <option value="AED">AED - UAE Dirham</option>
+          <option value="SAR">SAR - Saudi Riyal</option>
+        </select>
+      </div>
+      <button style="width:100%;padding:12px;background:#1A1A1A;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;" onclick="convert()">Convert</button>
+      <div class="converter-result" id="result">
+        <span id="resultLabel">1 USD =</span>
+        <strong id="resultValue">--</strong>
+      </div>
+      <div class="converter-rate" id="rateInfo">Fetching rates...</div>
+    </div>
+  </div>
+  <div class="code-section">
+    <h2>Source Code</h2>
+    <pre><span class="hl-cm">// Currency Converter using free API</span>
+
+<span class="hl-kw">async function</span> <span class="hl-fn">convert</span>() {
+  <span class="hl-kw">const</span> amount = <span class="hl-fn">parseFloat</span>(document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"amount"</span>).value);
+  <span class="hl-kw">const</span> from = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"fromCurrency"</span>).value;
+  <span class="hl-kw">const</span> to = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"toCurrency"</span>).value;
+
+  <span class="hl-kw">const</span> res = <span class="hl-kw">await</span> <span class="hl-fn">fetch</span>(
+    <span class="hl-str">`https://api.exchangerate-api.com/v4/latest/${from}`</span>
+  );
+  <span class="hl-kw">const</span> data = <span class="hl-kw">await</span> res.<span class="hl-fn">json</span>();
+  <span class="hl-kw">const</span> rate = data.rates[to];
+  <span class="hl-kw">const</span> result = (amount * rate).<span class="hl-fn">toFixed</span>(<span class="hl-num">2</span>);
+
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"resultValue"</span>).textContent = result;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"resultLabel"</span>).textContent =
+    <span class="hl-str">`${amount} ${from} =`</span>;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"rateInfo"</span>).textContent =
+    <span class="hl-str">`1 ${from} = ${rate} ${to}`</span>;
+}</pre>
+  </div>
+</div>
+<footer><span>Mansour Kanswa</span></footer>
+<script>
+  async function convert() {
+    const amount = parseFloat(document.getElementById("amount").value);
+    const from = document.getElementById("fromCurrency").value;
+    const to = document.getElementById("toCurrency").value;
+    try {
+      const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${from}`);
+      const data = await res.json();
+      const rate = data.rates[to];
+      const result = (amount * rate).toFixed(2);
+      document.getElementById("resultValue").textContent = result;
+      document.getElementById("resultLabel").textContent = `${amount} ${from} =`;
+      document.getElementById("rateInfo").textContent = `1 ${from} = ${rate} ${to}`;
+    } catch { document.getElementById("resultValue").textContent = "Error"; }
+  }
+  function swapCurrencies() {
+    const from = document.getElementById("fromCurrency");
+    const to = document.getElementById("toCurrency");
+    const tmp = from.value; from.value = to.value; to.value = tmp;
+    convert();
+  }
+  convert();
+</script>
+</body>
+</html>

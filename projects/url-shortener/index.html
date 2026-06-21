@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL Shortener — Mansour Kanswa</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2334506A'/%3E%3Cstop offset='60%25' stop-color='%231F3346'/%3E%3Cstop offset='100%25' stop-color='%2316242F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial,Helvetica,sans-serif' font-size='32' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:#FAFAF8; color:#1A1A1A; font-family:'Inter',-apple-system,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .top-bar{ background:rgba(250,250,248,0.86); backdrop-filter:blur(10px); border-bottom:1px solid #E5E3DD; padding:16px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .back-link{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#6B6B6B; text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .15s; }
+  .back-link:hover{ color:#1A1A1A; } .back-link svg{ width:14px; height:14px; }
+  .page-title{ font-size:13px; font-weight:600; color:#2D4356; letter-spacing:0.04em; }
+  .project-page{ max-width:900px; margin:0 auto; padding:40px 28px 60px; }
+  .project-header{ margin-bottom:40px; }
+  .project-header h1{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin-bottom:8px; }
+  .project-header p{ font-size:15px; color:#4A4A48; max-width:500px; }
+  .preview-section{ background:#fff; border:1px solid #E5E3DD; border-radius:14px; padding:40px; margin-bottom:40px; min-height:400px; display:flex; align-items:center; justify-content:center; }
+  .code-section h2{ font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#1A1A1A; margin-bottom:16px; }
+  pre{ background:#1a1a2e; color:#e0e0e0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.7; padding:24px; border-radius:10px; overflow-x:auto; tab-size:2; }
+  .hl-kw{ color:#c792ea; } .hl-fn{ color:#82aaff; } .hl-str{ color:#c3e88d; } .hl-num{ color:#f78c6c; } .hl-cm{ color:#546e7a; font-style:italic; }
+  footer{ text-align:center; padding:30px 28px; border-top:1px solid #E5E3DD; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#6B6B6B; }
+
+  .shortener{ max-width:460px; margin:0 auto; width:100%; }
+  .shortener-input{ display:flex; gap:8px; margin-bottom:16px; }
+  .shortener-input input{ flex:1; padding:12px 14px; border:1px solid #E5E3DD; border-radius:8px; font-size:14px; outline:none; }
+  .shortener-input input:focus{ border-color:#2D4356; }
+  .shortener-input button{ padding:12px 20px; background:#1A1A1A; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .shortener-input button:hover{ background:#2D4356; }
+  .shortener-result{ background:#E8EDF1; border-radius:10px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px; display:none; }
+  .shortener-result a{ color:#2D4356; font-weight:600; font-size:15px; word-break:break-all; }
+  .shortener-result button{ padding:8px 14px; border:1px solid #2D4356; border-radius:6px; background:transparent; color:#2D4356; font-size:12px; cursor:pointer; white-space:nowrap; transition:.15s; }
+  .shortener-result button:hover{ background:#2D4356; color:#fff; }
+  .shortener-stats{ margin-top:20px; font-size:13px; color:#6B6B6B; font-family:'JetBrains Mono',monospace; text-align:center; }
+  .shortener-list{ margin-top:16px; }
+  .shortener-list-item{ display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border:1px solid #E5E3DD; border-radius:6px; margin-bottom:6px; font-size:13px; }
+  .shortener-list-item a{ color:#2D4356; word-break:break-all; max-width:200px; }
+  .shortener-list-item .count{ color:#6B6B6B; font-family:'JetBrains Mono',monospace; font-size:11px; }
+  .shortener-list-item .orig{ font-size:11px; color:#6B6B6B; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a class="back-link" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>Back to portfolio</a>
+  <span class="page-title">Project / URL Shortener</span>
+</div>
+<div class="project-page">
+  <div class="project-header">
+    <h1>URL Shortener</h1>
+    <p>Shorten long URLs instantly — generates short codes and tracks click counts (demo with localStorage).</p>
+  </div>
+  <div class="preview-section">
+    <div class="shortener">
+      <div class="shortener-input">
+        <input type="url" id="urlInput" placeholder="Enter a long URL..." value="https://example.com/very/long/url">
+        <button onclick="shortenUrl()">Shorten</button>
+      </div>
+      <div class="shortener-result" id="shortResult">
+        <a href="#" target="_blank" id="shortLink"></a>
+        <button onclick="copyShortUrl()">Copy</button>
+      </div>
+      <div class="shortener-stats" id="shortStats">0 URLs shortened</div>
+      <div class="shortener-list" id="shortList"></div>
+    </div>
+  </div>
+  <div class="code-section">
+    <h2>Source Code</h2>
+    <pre><span class="hl-cm">// URL Shortener with localStorage persistence</span>
+
+<span class="hl-kw">function</span> <span class="hl-fn">shortenUrl</span>() {
+  <span class="hl-kw">const</span> url = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"urlInput"</span>).value.<span class="hl-fn">trim</span>();
+  <span class="hl-kw">if</span> (!url) <span class="hl-kw">return</span>;
+
+  <span class="hl-kw">const</span> code = <span class="hl-fn">Math</span>.<span class="hl-fn">random</span>().<span class="hl-fn">toString</span>(<span class="hl-num">36</span>).<span class="hl-fn">substring</span>(<span class="hl-num">2</span>, <span class="hl-num">7</span>);
+  <span class="hl-kw">const</span> links = <span class="hl-fn">JSON</span>.<span class="hl-fn">parse</span>(<span class="hl-fn">localStorage</span>.<span class="hl-fn">getItem</span>(<span class="hl-str">"links"</span>)) || [];
+  links.<span class="hl-fn">push</span>({ code, url, clicks: <span class="hl-num">0</span>, date: <span class="hl-fn">Date</span>.<span class="hl-fn">now</span>() });
+  <span class="hl-fn">localStorage</span>.<span class="hl-fn">setItem</span>(<span class="hl-str">"links"</span>, <span class="hl-fn">JSON</span>.<span class="hl-fn">stringify</span>(links));
+
+  <span class="hl-kw">const</span> shortUrl = <span class="hl-str">`https://short.link/${code}`</span>;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"shortLink"</span>).textContent = shortUrl;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"shortLink"</span>).href = <span class="hl-str">"#"</span>;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"shortResult"</span>).style.display = <span class="hl-str">"flex"</span>;
+  <span class="hl-fn">renderLinks</span>();
+}</pre>
+  </div>
+</div>
+<footer><span>Mansour Kanswa</span></footer>
+<script>
+  function shortenUrl() {
+    const url = document.getElementById("urlInput").value.trim();
+    if (!url) return;
+    const code = Math.random().toString(36).substring(2, 7);
+    const links = JSON.parse(localStorage.getItem("links")) || [];
+    links.push({ code, url, clicks: 0, date: Date.now() });
+    localStorage.setItem("links", JSON.stringify(links));
+    const shortUrl = `short.link/${code}`;
+    document.getElementById("shortLink").textContent = shortUrl;
+    document.getElementById("shortLink").href = "#";
+    document.getElementById("shortResult").style.display = "flex";
+    renderLinks();
+  }
+  function copyShortUrl() {
+    const text = document.getElementById("shortLink").textContent;
+    navigator.clipboard.writeText(text);
+    const btn = document.querySelector(".shortener-result button");
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = "Copy", 1500);
+  }
+  function renderLinks() {
+    const links = JSON.parse(localStorage.getItem("links")) || [];
+    document.getElementById("shortStats").textContent = `${links.length} URLs shortened`;
+    const list = document.getElementById("shortList");
+    list.innerHTML = links.slice().reverse().slice(0, 10).map(l => `<div class="shortener-list-item"><div><a href="#">${l.code}</a><div class="orig">${l.url}</div></div><span class="count">${l.clicks} clicks</span></div>`).join("");
+  }
+  renderLinks();
+</script>
+</body>
+</html>
